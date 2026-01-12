@@ -71,71 +71,86 @@ public class PassiveWoodGain : MonoBehaviour
 
     private void HireWorker()
     {
-        
-        workerAmount += 1;
-        Debug.Log($"current worker amount {workerAmount};");
-        switch (workerAmount) //set cost to new cost
+        bool canUpgrade = true;
+        for(int i = 0; i > 6; i++)
         {
-            case 1:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
-            case 2:
-                wCost = new List<int>() { 30, 0, 0, 0, 0, 0 };
-                break;
-            case 3:
-                wCost = new List<int>() { 30, 0, 0, 0, 0, 0 };
-                break;
-            case 4:
-                wCost = new List<int>() { 40, 0, 0, 0, 0, 0 };
-                break;
-            case 5:
-                wCost = new List<int>() { 50, 0, 0, 0, 0, 0 };
-                break;
-            case 6:
-                wCost = new List<int>() { 60, 0, 0, 0, 0, 0 };
-                break;
-            case 7:
-                wCost = new List<int>() { 70, 0, 0, 0, 0, 0 };
-                break;
-            case 8:
-                wCost = new List<int>() { 80, 0, 0, 0, 0, 0 };
-                break;
-            case 9:
-                wCost = new List<int>() { 90, 0, 0, 0, 0, 0 };
-                break;
-            case 10:
-                wCost = new List<int>() { 100, 0, 0, 0, 0, 0 };
-                break;
-            case 11:
-                wCost = new List<int>() { 110, 0, 0, 0, 0, 0 };
-                break;
-            case 12:
-                wCost = new List<int>() { 120, 0, 0, 0, 0, 0 };
-                break;
-            case 13:
-                wCost = new List<int>() { 120, 0, 0, 0, 0, 0 };
-                break;
-            case 14:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
-            case 15:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
-            case 16:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
-            case 17:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
-            case 18:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
-            case 19:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
-            case 20:
-                wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
-                break;
+            if (resourceBank[i] !>= wCost[i])
+            {
+                Debug.Log($"you dont have enough resources in position {i}");
+                canUpgrade = false;
+            }
+        }
+        if (canUpgrade)
+        {
+            for (int i = 0; i > 6; i++)
+            {
+                resourceBank[i] -= wCost[i];
+            }
+            workerAmount += 1;
+            Debug.Log($"current worker amount {workerAmount};");
+            switch (workerAmount) //set cost to new cost
+            {
+                case 1:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+                case 2:
+                    wCost = new List<int>() { 30, 0, 0, 0, 0, 0 };
+                    break;
+                case 3:
+                    wCost = new List<int>() { 30, 0, 0, 0, 0, 0 };
+                    break;
+                case 4:
+                    wCost = new List<int>() { 40, 0, 0, 0, 0, 0 };
+                    break;
+                case 5:
+                    wCost = new List<int>() { 50, 0, 0, 0, 0, 0 };
+                    break;
+                case 6:
+                    wCost = new List<int>() { 60, 0, 0, 0, 0, 0 };
+                    break;
+                case 7:
+                    wCost = new List<int>() { 70, 0, 0, 0, 0, 0 };
+                    break;
+                case 8:
+                    wCost = new List<int>() { 80, 0, 0, 0, 0, 0 };
+                    break;
+                case 9:
+                    wCost = new List<int>() { 90, 0, 0, 0, 0, 0 };
+                    break;
+                case 10:
+                    wCost = new List<int>() { 100, 0, 0, 0, 0, 0 };
+                    break;
+                case 11:
+                    wCost = new List<int>() { 110, 0, 0, 0, 0, 0 };
+                    break;
+                case 12:
+                    wCost = new List<int>() { 120, 0, 0, 0, 0, 0 };
+                    break;
+                case 13:
+                    wCost = new List<int>() { 120, 0, 0, 0, 0, 0 };
+                    break;
+                case 14:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+                case 15:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+                case 16:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+                case 17:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+                case 18:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+                case 19:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+                case 20:
+                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    break;
+            }
         }
     }
 }
