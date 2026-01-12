@@ -5,9 +5,8 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody rb;
+   
     public int playerID;
-
-    public float maxSpeed = 10f;
     public float speed = 10f;
     
 
@@ -36,11 +35,12 @@ public class PlayerMovement : MonoBehaviour
                 move1.x += 1;
             if (Input.GetKey(KeyCode.A))
                 move1.x -= 1;
+            //Gets the player's movement direction
 
             move1 = move1.normalized;
 
             rb.AddForce(move1 * speed, ForceMode.Impulse);
-
+            //Normalizes the vector and adds force
 
         }
         else if(playerID == 2)
@@ -55,10 +55,12 @@ public class PlayerMovement : MonoBehaviour
                 move2.x += 1;
             if (Input.GetKey(KeyCode.LeftArrow))
                 move2.x -= 1;
+            //Gets the player's movement direction
 
             move2 = move2.normalized;
 
             rb.AddForce(move2 * speed, ForceMode.Impulse);
+            //Normalizes the vector and adds force
 
         }
 
