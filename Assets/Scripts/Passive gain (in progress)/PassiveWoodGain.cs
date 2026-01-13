@@ -23,7 +23,7 @@ public class PassiveWoodGain : MonoBehaviour
     public float oRep = 20;  //time in seconds between each wood gain
 
     [SerializeField]
-    private int workerAmount; //only incremented in "HireWorker". This is basically upgrade amount.
+    private int upgradeLevel; //only incremented in "HireWorker". This is basically upgrade amount.
     public int PWorkers{get { return pWorkers; }private set { pWorkers = value; }}
     private int pWorkers;
     public int BWorkers{get { return bWorkers; }private set { bWorkers = value; }}
@@ -32,6 +32,8 @@ public class PassiveWoodGain : MonoBehaviour
     private int oWorkers;
     public int LeftoverWorkers { get { return leftoverWorkers; } private set { leftoverWorkers = value; }}
     private int leftoverWorkers;
+
+    private bool workerMaxReached = false;
 
     List<int> wCost = new List<int>() { 10, 0, 0, 0, 0, 0}; //p.log, b.log, o.log, p.plank, b.plank, o.plank
     public List<int> resourceBank = new List<int>() { 0,0,0,0,0,0};
@@ -45,50 +47,118 @@ public class PassiveWoodGain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H))
         {
             HireWorker();
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            DelegateWorker("pine");
+            Debug.Log($"You now have {pWorkers} pine workers");
+        }
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            DelegateWorker("birch");
+            Debug.Log($"You now have {bWorkers} birch workers");
+        }
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            DelegateWorker("oak");
+            Debug.Log($"You now have {oWorkers} oak workers");
         }
     }
     private void AmassPine()
     {
         int woodGained = pWorkers * unit;
-        Debug.Log($"gained {woodGained} wood");
+        Debug.Log($"gained {woodGained} pine");
         //Sends signal to inventory to add more wood of (type)
     }
     private void AmassBirch()
     {
         int woodGained = bWorkers * unit;
-        Debug.Log($"gained {woodGained} wood");
+        Debug.Log($"gained {woodGained} birch");
         //Sends signal to inventory to add more wood of (type)
     }
     private void AmassOak()
     {
         int woodGained = oWorkers * unit;
-        Debug.Log($"gained {woodGained} wood");
+        Debug.Log($"gained {woodGained} oak");
         //Sends signal to inventory to add more wood of (type)
     }
-
+    public void DelegateWorker(string woodType)
+    {
+        if (leftoverWorkers > 0)
+        {
+            if (woodType.ToLower() == "pine" || woodType.ToLower() == "spruce")
+            {
+                leftoverWorkers -= 1;
+                pWorkers += 1;
+            }
+            else if (woodType.ToLower() == "birch")
+            {
+                leftoverWorkers -= 1;
+                bWorkers += 1;
+            }
+            else if (woodType.ToLower() == "oak")
+            {
+                leftoverWorkers -= 1;
+                oWorkers += 1;
+            }
+        }
+        else
+        {
+            Debug.Log("youre out of workers!");
+        }
+    }
+    public void UndelegateWorker(string woodType)
+    {
+        if (woodType.ToLower() == "pine" || woodType.ToLower() == "spruce")
+        {
+            if (pWorkers > 0)
+            {
+                pWorkers -= 1;
+                leftoverWorkers += 1;
+            }
+        }
+        else if (woodType.ToLower() == "birch")
+        {
+            if (bWorkers > 0)
+            {
+                bWorkers -= 1;
+                leftoverWorkers += 1;
+            }
+        }
+        else if (woodType.ToLower() == "oak")
+        {
+            if (oWorkers > 0)
+            {
+                oWorkers -= 1;
+                leftoverWorkers += 1;
+            }
+        }
+    }
     private void HireWorker()
     {
         bool canUpgrade = true;
-        for(int i = 0; i > 6; i++)
+        for(int i = 0; i < 6; i++)
         {
-            if (resourceBank[i] !>= wCost[i])
+            if (resourceBank[i] < wCost[i])
             {
                 Debug.Log($"you dont have enough resources in position {i}");
                 canUpgrade = false;
             }
         }
-        if (canUpgrade)
+        if (canUpgrade && !workerMaxReached)
         {
             for (int i = 0; i > 6; i++)
             {
                 resourceBank[i] -= wCost[i];
+                Debug.Log($"{resourceBank[i]} resources left in position {i}");
             }
-            workerAmount += 1;
-            Debug.Log($"current worker amount {workerAmount};");
-            switch (workerAmount) //set cost to new cost
+            upgradeLevel += 1;
+            leftoverWorkers += 1;
+            Debug.Log($"current worker amount {upgradeLevel};");
+            switch (upgradeLevel) //set cost to new cost
             {
                 case 1:
                     wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
@@ -148,7 +218,7 @@ public class PassiveWoodGain : MonoBehaviour
                     wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
                     break;
                 case 20:
-                    wCost = new List<int>() { 20, 0, 0, 0, 0, 0 };
+                    workerMaxReached = true;
                     break;
             }
         }
