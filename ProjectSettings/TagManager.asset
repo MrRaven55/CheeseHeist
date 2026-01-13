@@ -4,7 +4,13 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - interactable
+  - Wood
+  - Oak
+  - Birch
+  - Pine
+  - PinePlank
+  - BirchPlank
+  - OakPlank
   layers:
   - Default
   - TransparentFX
