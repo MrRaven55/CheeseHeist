@@ -8,10 +8,7 @@ public class PlayerInteraction : MonoBehaviour
     PlayerMovement pM;
 
     int playerID;
-    private float timerSet;
-    private float timer;
     private bool playerInRange;
-    private Collider collider;
     private IInteractable interactable;
 
     private void Awake()
@@ -28,7 +25,7 @@ public class PlayerInteraction : MonoBehaviour
             if (pM.playerID == 1)
             {
 
-                if (collider.gameObject.CompareTag("interactable") && Input.GetKeyDown(KeyCode.E))
+                if ( Input.GetKeyDown(KeyCode.E))
                 {
                     interactable.Interact(playerID);
                 }
@@ -36,7 +33,7 @@ public class PlayerInteraction : MonoBehaviour
             }
             else if (pM.playerID == 2)
             {
-                if (collider.gameObject.CompareTag("interactable") && Input.GetKeyDown(KeyCode.RightControl))
+                if (Input.GetKeyDown(KeyCode.RightControl))
                 {
                     interactable.Interact(playerID);
 
@@ -49,9 +46,11 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        interactable = other.GetComponent<IInteractable>();
-        collider = other;
-        playerInRange = true;
+        if (other.CompareTag("interactable"))
+        {
+            interactable = other.GetComponent<IInteractable>();
+            playerInRange = true;
+        }
 
     }
     private void OnTriggerExit(Collider other)
