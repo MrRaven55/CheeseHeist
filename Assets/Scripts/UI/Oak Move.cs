@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class OakMove : MonoBehaviour
+public class OakMove : MonoBehaviour, IInteractable
 {
     public float moveDuration = 1f;
 
     RectTransform rectTransform;
 
    private RectTransform endPoint;
-
+    PlayerMovement PlayerID;
+    public int startPosition;
 
 
     private void Awake()
@@ -24,10 +25,13 @@ public class OakMove : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-        
         //start position for the UI
-        rectTransform.anchoredPosition = Vector2.zero;
+
+        if (startPosition == 1)
+            rectTransform.anchoredPosition = Vector2.zero;
+         if (startPosition == 2) 
+            rectTransform.anchoredPosition = Vector2.one;
+        
         //end position for the UI
         Vector2 targetPosition = endPoint.anchoredPosition;
        
@@ -35,10 +39,16 @@ public class OakMove : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
+   public void Interact (int PlayerID)
     {
-        
+        if(PlayerID == 1)
+        {
+            startPosition = 1;
+        }
+        else if(PlayerID == 2)
+        {
+            startPosition = 2;
+        }
     }
 
     IEnumerator MoveToCorner(Vector2 target)
