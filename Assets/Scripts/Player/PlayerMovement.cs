@@ -5,7 +5,14 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody rb;
-   
+    Animator anim;
+
+    public KeyCode upButton;
+    public KeyCode downButton;
+    public KeyCode rightButton;
+    public KeyCode leftButton;
+
+
     public int playerID;
     public float speed = 10f;
     
@@ -13,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        anim = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -23,17 +31,16 @@ public class PlayerMovement : MonoBehaviour
 
     void Movement()
     {   
-        if(playerID == 1)
-        {
+       
             Vector3 move1 = Vector3.zero;
 
-            if (Input.GetKey(KeyCode.W))
+            if (Input.GetKey(upButton))
                 move1.y += 1;
-            if (Input.GetKey(KeyCode.S))
+            if (Input.GetKey(downButton))
                 move1.y -= 1;
-            if (Input.GetKey(KeyCode.D))
+            if (Input.GetKey(rightButton))
                 move1.x += 1;
-            if (Input.GetKey(KeyCode.A))
+            if (Input.GetKey(leftButton))
                 move1.x -= 1;
             //Gets the player's movement direction
 
@@ -41,28 +48,6 @@ public class PlayerMovement : MonoBehaviour
 
             rb.AddForce(move1 * speed, ForceMode.Impulse);
             //Normalizes the vector and adds force
-
-        }
-        else if(playerID == 2)
-        {
-            Vector3 move2 = Vector3.zero;
-
-            if (Input.GetKey(KeyCode.UpArrow))
-                move2.y += 1;
-            if (Input.GetKey(KeyCode.DownArrow))
-                move2.y -= 1;
-            if (Input.GetKey(KeyCode.RightArrow))
-                move2.x += 1;
-            if (Input.GetKey(KeyCode.LeftArrow))
-                move2.x -= 1;
-            //Gets the player's movement direction
-
-            move2 = move2.normalized;
-
-            rb.AddForce(move2 * speed, ForceMode.Impulse);
-            //Normalizes the vector and adds force
-
-        }
 
 
 

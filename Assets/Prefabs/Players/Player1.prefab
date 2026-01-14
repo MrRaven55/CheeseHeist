@@ -148,6 +148,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99530187dc029d74d83bda02cfac0ff2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  upButton: 119
+  downButton: 115
+  rightButton: 100
+  leftButton: 97
   playerID: 1
   speed: 25
 --- !u!135 &2996799278923488426
@@ -183,3 +187,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 902f83d6f76f6c14f95867b49ab7ccfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interact: 101

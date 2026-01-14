@@ -6,6 +6,7 @@ public class PlayerInteraction : MonoBehaviour
 {
 
     PlayerMovement pM;
+    public KeyCode interact;
 
     int playerID;
     private bool playerInRange;
@@ -22,23 +23,12 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (playerInRange)
         {
-            if (pM.playerID == 1)
-            {
-
-                if ( Input.GetKeyDown(KeyCode.E))
+          
+                if ( Input.GetKeyDown(interact))
                 {
-                    interactable.Interact(playerID);
+                    interactable.Interact(gameObject);
                 }
-
-            }
-            else if (pM.playerID == 2)
-            {
-                if (Input.GetKeyDown(KeyCode.RightControl))
-                {
-                    interactable.Interact(playerID);
-
-                }
-            }
+            
         }
         
         //Checks if the player is in range of interactable object, and runs the interact script if the player presses the interact key.
