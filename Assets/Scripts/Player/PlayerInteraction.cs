@@ -41,7 +41,7 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
         
-        
+        //Checks if the player is in range of interactable object, and runs the interact script if the player presses the interact key.
     }
 
     private void OnTriggerEnter(Collider other)
@@ -51,7 +51,7 @@ public class PlayerInteraction : MonoBehaviour
             interactable = other.GetComponent<IInteractable>();
             playerInRange = true;
         }
-
+        //Checks if the nearby object is interactible, and gets the interactable component if it is.
     }
     private void OnTriggerExit(Collider other)
     {
