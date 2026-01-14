@@ -842,9 +842,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 546114232}
-  - component: {fileID: 546114233}
+  - component: {fileID: 546114234}
   m_Layer: 5
-  m_Name: Log Animator Manager
+  m_Name: WoodInventory
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -869,7 +869,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &546114233
+--- !u!114 &546114234
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -878,15 +878,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 546114231}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e11531115a7808346a64a263869f499f, type: 3}
+  m_Script: {fileID: 11500000, guid: c3cbee7fc9e618b4d9cb7d3aeffa6bb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  oakLog: {fileID: 484566171904209307, guid: af09d3542d472634fbd731ad71e1a29c, type: 3}
-  birchLog: {fileID: 6488703470660970447, guid: 307ab1d3b44f42745b5aa8bd266077ac, type: 3}
-  pineLog: {fileID: 3059210040685719673, guid: b7ebb0df5acb5cf408706de348c687dc, type: 3}
-  oakPlank: {fileID: 4252835117310416261, guid: cb5796280abe46849adfef7d106c65dc, type: 3}
-  birchPlank: {fileID: 3476078138816140576, guid: d9ce36f7e41f571469f67de522cb5adb, type: 3}
-  pinePlank: {fileID: 7185371358646910289, guid: 826fef770f05c2f4f8c63c344cde6d91, type: 3}
+  oak: 0
+  birch: 0
+  pine: 0
+  oakPlanks: 0
+  birchPlanks: 0
+  pinePlanks: 0
+  axeTier: 1
+  oakUI: {fileID: 2037922307}
+  birchUI: {fileID: 13156612}
+  pineUI: {fileID: 1524671564}
+  oakPlanksUI: {fileID: 1062659226}
+  birchPlanksUI: {fileID: 152342353}
+  pinePlanksUI: {fileID: 579447957}
+  oakLog: {fileID: 4773691437879893740, guid: af09d3542d472634fbd731ad71e1a29c, type: 3}
+  birchLog: {fileID: -3951918637784721197, guid: 307ab1d3b44f42745b5aa8bd266077ac, type: 3}
+  pineLog: {fileID: -4951849542898154300, guid: b7ebb0df5acb5cf408706de348c687dc, type: 3}
+  oakPlank: {fileID: -4531798400746361954, guid: cb5796280abe46849adfef7d106c65dc, type: 3}
+  birchPlank: {fileID: -1715168994576708717, guid: d9ce36f7e41f571469f67de522cb5adb, type: 3}
+  pinePlank: {fileID: -4131366223961342373, guid: 826fef770f05c2f4f8c63c344cde6d91, type: 3}
   canvas: {fileID: 285685449}
 --- !u!1 &579447955
 GameObject:
@@ -1037,7 +1050,6 @@ GameObject:
   - component: {fileID: 700792730}
   - component: {fileID: 700792729}
   - component: {fileID: 700792728}
-  - component: {fileID: 700792727}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Untagged
@@ -1045,32 +1057,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &700792727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 700792726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 131c9c01d040c8c4da1c75312950dff6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oak: 0
-  birch: 0
-  pine: 0
-  oakPlanks: 0
-  birchPlanks: 0
-  pinePlanks: 0
-  axeTier: 1
-  oakUI: {fileID: 2037922307}
-  birchUI: {fileID: 13156612}
-  pineUI: {fileID: 1524671564}
-  oakPlanksUI: {fileID: 1062659226}
-  birchPlanksUI: {fileID: 152342353}
-  pinePlanksUI: {fileID: 579447957}
-  spawnUI: {fileID: 546114233}
 --- !u!143 &700792728
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1683,7 +1669,6 @@ GameObject:
   - component: {fileID: 1772919053}
   - component: {fileID: 1772919052}
   - component: {fileID: 1772919051}
-  - component: {fileID: 1772919050}
   m_Layer: 0
   m_Name: Player1
   m_TagString: Untagged
@@ -1691,32 +1676,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1772919050
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1772919049}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 131c9c01d040c8c4da1c75312950dff6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oak: 0
-  birch: 0
-  pine: 0
-  oakPlanks: 0
-  birchPlanks: 0
-  pinePlanks: 0
-  axeTier: 1
-  oakUI: {fileID: 2037922307}
-  birchUI: {fileID: 13156612}
-  pineUI: {fileID: 1524671564}
-  oakPlanksUI: {fileID: 1062659226}
-  birchPlanksUI: {fileID: 152342353}
-  pinePlanksUI: {fileID: 579447957}
-  spawnUI: {fileID: 546114233}
 --- !u!143 &1772919051
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2098,6 +2057,51 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2037922305}
   m_CullTransparentMesh: 1
+--- !u!1 &2126836304
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2126836306}
+  - component: {fileID: 2126836305}
+  m_Layer: 0
+  m_Name: test tree
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2126836305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126836304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aff3906020dcc3c499a7837786faf514, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treeType: OakPlank
+--- !u!4 &2126836306
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126836304}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.9471526, y: 1.0101979, z: 2.5468423}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -2111,3 +2115,4 @@ SceneRoots:
   - {fileID: 1024614645}
   - {fileID: 282227088}
   - {fileID: 121168432}
+  - {fileID: 2126836306}

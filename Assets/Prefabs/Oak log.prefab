@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 162083614193990781}
   - component: {fileID: 9056844061840826420}
   - component: {fileID: 1752521299315024373}
-  - component: {fileID: -6112530437450929493}
+  - component: {fileID: 4773691437879893740}
   m_Layer: 5
   m_Name: Oak log
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &-6112530437450929493
+--- !u!114 &4773691437879893740
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +85,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 484566171904209307}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 507270a3011db304c8979fca68d41135, type: 3}
+  m_Script: {fileID: 11500000, guid: b2c31c5a7e0b09b4284c210ba2a9a2ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveDuration: 1
+  startPosition: 0
+  uiTagName: Oak

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 91917059833012506}
   - component: {fileID: 7553026452689567653}
   - component: {fileID: 3941696313112100308}
-  - component: {fileID: 6394545469740610150}
+  - component: {fileID: -1715168994576708717}
   m_Layer: 5
   m_Name: Birch Plank
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6394545469740610150
+--- !u!114 &-1715168994576708717
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +85,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3476078138816140576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10affeea5ae66bd4881375a4fc0d5fb1, type: 3}
+  m_Script: {fileID: 11500000, guid: b2c31c5a7e0b09b4284c210ba2a9a2ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveDuration: 1
+  startPosition: 0
+  uiTagName: BirchPlank

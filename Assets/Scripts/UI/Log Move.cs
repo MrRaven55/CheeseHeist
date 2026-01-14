@@ -1,51 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
-public class OakMove : MonoBehaviour, IInteractable
+public class LogMove : MonoBehaviour
 {
     public float moveDuration = 1f;
 
     RectTransform rectTransform;
 
-   private RectTransform endPoint;
-    PlayerMovement PlayerID;
+    private RectTransform endPoint;
+   
     public int startPosition;
-
+    public string uiTagName;
 
     private void Awake()
     {
 
         rectTransform = GetComponent<RectTransform>();
-        GameObject oakUIElement = GameObject.FindGameObjectWithTag("Oak");
-        endPoint = oakUIElement.GetComponent<RectTransform>();
-       
+        GameObject logUIElement = GameObject.FindGameObjectWithTag(uiTagName);
+        endPoint = logUIElement.GetComponent<RectTransform>();
+
     }
     // Start is called before the first frame update
-    void Start()
+    public void StartMove(Vector2 start)
     {
         //start position for the UI
 
-        if (startPosition == 1)
-            rectTransform.anchoredPosition = Vector2.zero;
-         if (startPosition == 2) 
-            rectTransform.anchoredPosition = Vector2.one;
-        
+        rectTransform.anchoredPosition = start;
+
         //end position for the UI
         Vector2 targetPosition = endPoint.anchoredPosition;
-       
+
         StartCoroutine(MoveToCorner(targetPosition));
-        
+
     }
 
-   public void Interact (int PlayerID)
+    public void Interact(int PlayerID)
     {
-        if(PlayerID == 1)
+        if (PlayerID == 1)
         {
             startPosition = 1;
         }
-        else if(PlayerID == 2)
+        else if (PlayerID == 2)
         {
             startPosition = 2;
         }
