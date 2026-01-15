@@ -29,6 +29,7 @@ public class ForestWorkerBoard : MonoBehaviour, IInteractable
     {
         if (uiOpen)
         {
+            
         }
     }
 }
