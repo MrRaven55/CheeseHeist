@@ -2086,7 +2086,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aff3906020dcc3c499a7837786faf514, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  treeType: OakPlank
+  treeType: Oak
 --- !u!4 &2126836306
 Transform:
   m_ObjectHideFlags: 0
