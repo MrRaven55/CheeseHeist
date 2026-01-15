@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6955887387719542569}
   - component: {fileID: 1449416880178784426}
   - component: {fileID: 44437643165941016}
-  - component: {fileID: -9148571968630450865}
+  - component: {fileID: -3951918637784721197}
   m_Layer: 5
   m_Name: Birch Log
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &-9148571968630450865
+--- !u!114 &-3951918637784721197
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +85,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6488703470660970447}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f958d111cf2ea054cbb8a5152cea36a9, type: 3}
+  m_Script: {fileID: 11500000, guid: b2c31c5a7e0b09b4284c210ba2a9a2ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveDuration: 1
+  startPosition: 0
+  uiTagName: Birch

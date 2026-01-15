@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6420584489473181684}
   - component: {fileID: 4764882947958592055}
   - component: {fileID: 4579956241458734285}
-  - component: {fileID: -3764332145339148295}
+  - component: {fileID: -4531798400746361954}
   m_Layer: 5
   m_Name: OakPlank
   m_TagString: Untagged
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &-3764332145339148295
+--- !u!114 &-4531798400746361954
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +85,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4252835117310416261}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50c7be5d39efc244cac5e3b47e26ae62, type: 3}
+  m_Script: {fileID: 11500000, guid: b2c31c5a7e0b09b4284c210ba2a9a2ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveDuration: 1
+  startPosition: 0
+  uiTagName: OakPlank
