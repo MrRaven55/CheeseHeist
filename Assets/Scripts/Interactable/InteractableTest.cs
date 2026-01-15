@@ -5,9 +5,9 @@ using UnityEngine;
 public class InteractableTest : MonoBehaviour, IInteractable
 {
     
-   public void Interact(int playerID) 
+   public void Interact(GameObject player) 
     {
-        Debug.Log("PlayerID: " + playerID);
+        Debug.Log("PlayerID: " + player);
     }
 
 }
