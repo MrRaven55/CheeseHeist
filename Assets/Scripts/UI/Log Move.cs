@@ -2,44 +2,49 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BirchPlankMove : MonoBehaviour
+public class LogMove : MonoBehaviour
 {
     public float moveDuration = 1f;
 
     RectTransform rectTransform;
 
     private RectTransform endPoint;
-
-
+   
+    public int startPosition;
+    public string uiTagName;
 
     private void Awake()
     {
 
         rectTransform = GetComponent<RectTransform>();
-
-        GameObject BirchPlankUIElement = GameObject.FindGameObjectWithTag("BirchPlank");
-        endPoint = BirchPlankUIElement.GetComponent<RectTransform>();
+        GameObject logUIElement = GameObject.FindGameObjectWithTag(uiTagName);
+        endPoint = logUIElement.GetComponent<RectTransform>();
 
     }
     // Start is called before the first frame update
-    void Start()
+    public void StartMove(Vector2 start)
     {
-
-
         //start position for the UI
-        rectTransform.anchoredPosition = Vector2.zero;
-        //end position for the UI
 
+        rectTransform.anchoredPosition = start;
+
+        //end position for the UI
         Vector2 targetPosition = endPoint.anchoredPosition;
 
         StartCoroutine(MoveToCorner(targetPosition));
 
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Interact(int PlayerID)
     {
-
+        if (PlayerID == 1)
+        {
+            startPosition = 1;
+        }
+        else if (PlayerID == 2)
+        {
+            startPosition = 2;
+        }
     }
 
     IEnumerator MoveToCorner(Vector2 target)
