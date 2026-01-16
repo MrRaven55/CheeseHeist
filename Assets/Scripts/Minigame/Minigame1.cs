@@ -22,10 +22,12 @@ public class Minigame1 : MonoBehaviour
     [Header("Rewards")]
     [SerializeField] private float perfectThresholdHeight = 40f;
     [SerializeField] private int normalReward = 10;
-    [SerializeField] private int perfectReward = 25;
+    [SerializeField] private int perfectReward = 20;
 
-    private int score;
+    public int score;
+    public KeyCode Chop;
 
+    
 
     private Vector2 startPiecePosition;
     private Vector2 startHitAreaSize;
@@ -77,12 +79,18 @@ public class Minigame1 : MonoBehaviour
 
     void CheckHit()
     {
-        if (!Input.GetKeyDown(KeyCode.Space))
+        if (score >= 40)
+        {
+            EndMinigame();
+        }
+
+        if (!Input.GetKeyDown(Chop))
             return;
 
         if (!IsInsideHitArea())
         {
             Debug.Log("Miss");
+            Miss();
             return;
         }
 
@@ -91,11 +99,13 @@ public class Minigame1 : MonoBehaviour
         if (currentHitHeight <= perfectThresholdHeight)
         {
             score += perfectReward;
+            PerfectHit();
             Debug.Log("PERFECT! +" + perfectReward);
         }
         else
         {
             score += normalReward;
+            Hit();
             Debug.Log("Good hit +" + normalReward);
         }
 
@@ -138,12 +148,26 @@ public class Minigame1 : MonoBehaviour
     void EndMinigame()
     {
         Debug.Log("Minigame 1 ended");
+       
         gameObject.SetActive(false);
     }
     void OnDisable()
     {
         ResetGame();
         Debug.Log("Minigame 1 reset & disabled");
+    }
+
+    public void PerfectHit()
+    {
+
+    }
+    public void Hit()
+    {
+
+    }
+    public void Miss()
+    {
+
     }
 
 }

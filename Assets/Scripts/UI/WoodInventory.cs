@@ -37,7 +37,7 @@ public class WoodInventory : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+       
     }
 
 
@@ -53,7 +53,7 @@ public class WoodInventory : MonoBehaviour
         pinePlanksUI.text = "Pine Planks: " + pinePlanks;
     }
 
-    public void AddWood(string treeType, int playerID)
+    public void AddWood(string treeType, GameObject player)
     {
         if (treeType =="Oak")
         {
@@ -63,8 +63,9 @@ public class WoodInventory : MonoBehaviour
             
         if (treeType == "Pine")
         {
+            lm = Instantiate(pineLog, canvas.transform);
             getPine();
-             lm = Instantiate(pineLog, canvas.transform);
+             
         }
             
         if(treeType == "Birch")
@@ -93,11 +94,11 @@ public class WoodInventory : MonoBehaviour
 
 
         Vector2 playerPosition = new Vector2(0, 0);
-        if(playerID == 1)
+        if(player.GetComponent<PlayerMovement>().playerID == 1)
         {
             playerPosition.x = -Screen.width * 0.25f;
         }
-        if(playerID == 2)
+        if(player.GetComponent<PlayerMovement>().playerID == 2)
         {
             playerPosition.x = Screen.width * 0.25f;
         }

@@ -1,20 +1,26 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class PlayerInteraction : MonoBehaviour
 {
 
     PlayerMovement pM;
+    public  WoodInventory wI;
     public KeyCode interact;
+    public string treeType;
 
     int playerID;
     private bool playerInRange;
     private IInteractable interactable;
+    public GameObject minigame1;
 
     private void Awake()
     {
-        pM = GetComponent<PlayerMovement>();
+        pM = gameObject.GetComponent<PlayerMovement>();
+        
+
 
         playerID = pM.playerID;
     }
@@ -23,11 +29,14 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (playerInRange)
         {
-          
-                if ( Input.GetKeyDown(interact))
+           
+                if (Input.GetKeyDown(interact))
                 {
-                    interactable.Interact(gameObject);
-                }
+                // interactable.Interact(gameObject);
+                     minigame1.SetActive(true);
+              
+
+            }
             
         }
         

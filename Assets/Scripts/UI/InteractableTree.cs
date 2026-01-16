@@ -6,27 +6,32 @@ public class InteractableTree : MonoBehaviour, IInteractable
 {
     public string treeType;
     WoodInventory woodInventory;
-    public void Interact(int playerID)
-    {
-        woodInventory.AddWood(treeType, playerID);
-    }
+    PlayerMovement players;
+    public Minigame1 score;
+    private IInteractable interactable;
+
 
     // Start is called before the first frame update
     void Start()
     {
         woodInventory = FindObjectOfType<WoodInventory>();
+        players = GetComponent<PlayerMovement>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+      
+        if (score.score >= 40)
         {
-            Interact(1);
+
+            Interact(gameObject);
+         
+
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            Interact(2);
-        }
+    }
+    public void Interact(GameObject player)
+    {
+        woodInventory.AddWood(treeType, player);
     }
 }
