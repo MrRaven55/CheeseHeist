@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     public KeyCode rightButton;
     public KeyCode leftButton;
 
-
+    public bool isInMenu = false;
     public int playerID;
     public float speed = 10f;
     
@@ -26,7 +26,10 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        Movement();
+        if (!isInMenu)
+        {
+            Movement();
+        }
     }
 
     void Movement()

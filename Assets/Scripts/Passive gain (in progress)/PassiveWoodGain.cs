@@ -36,7 +36,7 @@ public class PassiveWoodGain : MonoBehaviour
     private bool workerMaxReached = false;
 
     List<int> wCost = new List<int>() { 10, 0, 0, 0, 0, 0}; //p.log, b.log, o.log, p.plank, b.plank, o.plank
-    public List<int> resourceBank = new List<int>() { 0,0,0,0,0,0};
+    public List<int> resourceBank = new List<int>() { 0,0,0,0,0,0}; //should access the player inv later
     void Start()
     {
         InvokeRepeating("AmassPine", pRep, pRep);
@@ -110,7 +110,7 @@ public class PassiveWoodGain : MonoBehaviour
             Debug.Log("youre out of workers!");
         }
     }
-    public void UndelegateWorker(string woodType)
+    public void DedelegateWorker(string woodType)
     {
         if (woodType.ToLower() == "pine" || woodType.ToLower() == "spruce")
         {
