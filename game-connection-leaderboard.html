@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Great Cheese Heist - Leaderboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --jail-bars: #333;
+            --jail-bg: #1a1a2e;
+            --text-color: #fff;
+            --accent-color: #ffd700;
+            --cell-bg: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: var(--jail-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .jail-bars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(
+                to right,
+                var(--jail-bars) 1px,
+                transparent 1px
+            );
+            background-size: 40px 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 4px solid var(--accent-color);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 2.5rem;
+            text-shadow: 3px 3px 0 #000;
+            margin-bottom: 1rem;
+        }
+
+        .cheese {
+            position: absolute;
+            width: 60px;
+            height: 45px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffeb3b 100%);
+            border-radius: 50% 50% 35% 35%;
+            transform: rotate(45deg);
+            opacity: 0.9;
+            animation: float 2s ease-in-out infinite, glow 2s ease-in-out infinite alternate;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            z-index: 10;
+        }
+
+        .cheese::before, .cheese::after {
+            content: '';
+            position: absolute;
+            background: #ffa500;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(255, 165, 0, 0.8);
+        }
+
+        .cheese::before {
+            width: 12px;
+            height: 12px;
+            top: 10px;
+            left: 15px;
+        }
+
+        .cheese::after {
+            width: 8px;
+            height: 8px;
+            bottom: 15px;
+            right: 20px;
+        }
+
+        .cheese-1 { top: 5%; left: 5%; animation-delay: 0s; }
+        .cheese-2 { top: 15%; right: 10%; animation-delay: 0.3s; }
+        .cheese-3 { bottom: 10%; left: 15%; animation-delay: 0.6s; }
+        .cheese-4 { bottom: 20%; right: 20%; animation-delay: 0.9s; }
+        .cheese-5 { top: 50%; left: 10%; animation-delay: 1.2s; }
+        .cheese-6 { top: 60%; right: 10%; animation-delay: 1.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(45deg); }
+            50% { transform: translateY(-15px) rotate(48deg) scale(1.1); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); }
+            to { box-shadow: 0 0 25px rgba(255, 255, 0, 0.9); }
+        }
+
+        .leaderboard {
+            background: rgba(0, 0, 0, 0.7);
+            border: 4px solid var(--accent-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        th {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--accent-color);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .rank {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .time {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+
+        .character {
+            display: inline-block;
+            width: 30px;
+            height: 40px;
+            background: #fff;
+            position: relative;
+            margin: 0 5px;
+            border-radius: 5px;
+            vertical-align: middle;
+        }
+
+        .character::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 25px;
+            background: #333;
+            top: -10px;
+            left: 5px;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .character::after {
+            content: '👤';
+            position: absolute;
+            top: -5px;
+            left: 0;
+            font-size: 20px;
+        }
+
+        .character.cheese-thief::after {
+            content: '🧀';
+            font-size: 30px;
+            top: -15px;
+            left: -3px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            th, td {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="jail-bars"></div>
+    
+    <div class="container">
+        <header>
+            <h1>THE GREAT CHEESE HEIST</h1>
+            <p>Leaderboard</p>
+            <div class="cheese cheese-1"></div>
+            <div class="cheese cheese-2"></div>
+            <div class="cheese cheese-3"></div>
+            <div class="cheese cheese-4"></div>
+        </header>
+        
+        <div class="leaderboard">
+            <table id="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Time</th>
+                        <th>Character</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Leaderboard data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Global leaderboard data storage
+        let leaderboardData = [];
+
+        // API configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Function to format time in MM:SS.mmm
+        function formatTime(ms) {
+            const date = new Date(ms);
+            const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+            const seconds = date.getUTCSeconds().toString().padStart(2, '0');
+            const milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0');
+            return `${minutes}:${seconds}.${milliseconds}`;
+        }
+
+        // Function to convert time string to milliseconds
+        function timeToMs(timeStr) {
+            const [minutes, rest] = timeStr.split(':');
+            const [seconds, ms] = rest.split('.');
+            return (parseInt(minutes) * 60000) + (parseInt(seconds) * 1000) + parseInt(ms);
+        }
+
+        // Fetch leaderboard data from server
+        async function fetchLeaderboard() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/leaderboard`);
+                if (response.ok) {
+                    leaderboardData = await response.json();
+                    updateLeaderboardDisplay();
+                } else {
+                    console.error('Failed to fetch leaderboard:', response.statusText);
+                    // Use demo data if server is not available
+                    useDemoData();
+                }
+            } catch (error) {
+                console.error('Error fetching leaderboard:', error);
+                // Use demo data if server is not available
+                useDemoData();
+            }
+        }
+
+        // Demo data for testing without server
+        function useDemoData() {
+            leaderboardData = [
+                { name: "SpeedRunner", time: "01:23.456", isCheeseThief: true },
+                { name: "CheeseLover", time: "01:45.789", isCheeseThief: false },
+                { name: "QuickMouse", time: "02:12.345", isCheeseThief: true },
+                { name: "CasualPlayer", time: "03:45.678", isCheeseThief: false }
+            ];
+            updateLeaderboardDisplay();
+        }
+
+        // Update leaderboard display
+        function updateLeaderboardDisplay() {
+            // Sort leaderboard by time (fastest first)
+            leaderboardData.sort((a, b) => timeToMs(a.time) - timeToMs(b.time));
+
+            // Clear existing rows
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            leaderboardBody.innerHTML = '';
+
+            // Populate the leaderboard
+            leaderboardData.forEach((player, index) => {
+                const row = document.createElement('tr');
+                
+                // Add rank
+                const rankCell = document.createElement('td');
+                rankCell.className = 'rank';
+                rankCell.textContent = `#${index + 1}`;
+                
+                // Add player name
+                const nameCell = document.createElement('td');
+                nameCell.textContent = player.name;
+                
+                // Add time
+                const timeCell = document.createElement('td');
+                timeCell.className = 'time';
+                timeCell.textContent = player.time;
+                
+                // Add character
+                const charCell = document.createElement('td');
+                const char = document.createElement('div');
+                char.className = `character ${player.isCheeseThief ? 'cheese-thief' : ''}`;
+                charCell.appendChild(char);
+                
+                // Append all cells to row
+                row.appendChild(rankCell);
+                row.appendChild(nameCell);
+                row.appendChild(timeCell);
+                row.appendChild(charCell);
+                
+                // Add row to table
+                leaderboardBody.appendChild(row);
+            });
+
+            // Re-apply animations to new rows
+            animateRows();
+        }
+
+        // Animate leaderboard rows
+        function animateRows() {
+            const rows = document.querySelectorAll('#leaderboard-body tr');
+            rows.forEach((row, index) => {
+                // Add delay based on row index
+                row.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
+                row.style.opacity = '0';
+                
+                // Add hover effect
+                row.addEventListener('mouseover', () => {
+                    row.style.transform = 'scale(1.02)';
+                    row.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.5)';
+                });
+                
+                row.addEventListener('mouseout', () => {
+                    row.style.transform = 'scale(1)';
+                    row.style.boxShadow = 'none';
+                });
+            });
+        }
+
+        // Initialize leaderboard on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchLeaderboard();
+            
+            // Refresh leaderboard every 5 seconds
+            setInterval(fetchLeaderboard, 5000);
+        });
+
+        // Animate cheese on hover
+        const cheeses = document.querySelectorAll('.cheese');
+        cheeses.forEach(cheese => {
+            cheese.addEventListener('mouseover', () => {
+                cheese.style.transform = 'scale(1.5) rotate(45deg)';
+                cheese.style.transition = 'transform 0.3s ease';
+            });
+            
+            cheese.addEventListener('mouseout', () => {
+                cheese.style.transform = 'rotate(45deg)';
+            });
+        });
+
+        // Add some fun animation to the leaderboard rows
+        const rows = document.querySelectorAll('#leaderboard-body tr');
+        rows.forEach((row, index) => {
+            // Add delay based on row index
+            row.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
+            row.style.opacity = '0';
+            
+            // Add hover effect
+            row.addEventListener('mouseover', () => {
+                row.style.transform = 'scale(1.02)';
+                row.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.5)';
+            });
+            
+            row.addEventListener('mouseout', () => {
+                row.style.transform = 'scale(1)';
+                row.style.boxShadow = 'none';
+            });
+        });
+
+        // Add CSS for fadeIn animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
