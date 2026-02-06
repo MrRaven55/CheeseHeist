@@ -1314,12 +1314,12 @@ MonoBehaviour:
   normalReward: 10
   perfectReward: 20
   scoreGoal: 40
-  woodInventory: {fileID: 0}
-  playerRef: {fileID: 0}
-  normalHitWoodType: Oak
-  perfectHitWoodType: OakPlank
+  _woodInventory: {fileID: 0}
+  _playerRef: {fileID: 0}
+  _normalHitWoodType: Oak
+  _perfectHitWoodType: OakPlank
   score: 0
-  Chop: 101
+  chopKey: 32
   onPerfect:
     m_PersistentCalls:
       m_Calls: []
@@ -1829,12 +1829,12 @@ MonoBehaviour:
   normalReward: 10
   perfectReward: 25
   scoreGoal: 40
-  woodInventory: {fileID: 0}
-  playerRef: {fileID: 0}
-  normalHitWoodType: Oak
-  perfectHitWoodType: OakPlank
+  _woodInventory: {fileID: 0}
+  _playerRef: {fileID: 0}
+  _normalHitWoodType: Oak
+  _perfectHitWoodType: OakPlank
   score: 0
-  Chop: 305
+  chopKey: 32
   onPerfect:
     m_PersistentCalls:
       m_Calls: []
@@ -2758,6 +2758,10 @@ PrefabInstance:
       value: BirchTree
       objectReference: {fileID: 0}
     - target: {fileID: 6415021840879177831, guid: 1ea1fa83e91e7734f8a47ec942bc4b88, type: 3}
+      propertyPath: treeType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6415021840879177831, guid: 1ea1fa83e91e7734f8a47ec942bc4b88, type: 3}
       propertyPath: requireMinigame
       value: 0
       objectReference: {fileID: 0}
@@ -2818,6 +2822,10 @@ PrefabInstance:
       propertyPath: score
       value: 
       objectReference: {fileID: 648966571}
+    - target: {fileID: 3811392302308789887, guid: 33131d1084faf5e409f216912856322d, type: 3}
+      propertyPath: treeType
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3811392302308789887, guid: 33131d1084faf5e409f216912856322d, type: 3}
       propertyPath: requireMinigame
       value: 0
