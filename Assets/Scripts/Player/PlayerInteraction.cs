@@ -1,45 +1,50 @@
 using UnityEngine;
 
+/// <summary>
+/// Handles player proximity-based interaction with IInteractable objects and
+/// triggers Minigame1 (sets up the minigame parameters before enabling it).
+/// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
-    private PlayerMovement pM;
+    private PlayerMovement playerMovement;
     private bool playerInRange;
     private IInteractable interactable;
 
     [Header("References")]
-    public KeyCode interact = KeyCode.E;
-    public GameObject minigame1;
-    public WoodInventory wI;
+    [SerializeField] private KeyCode interactKey = KeyCode.E;
+    [SerializeField] private GameObject minigame1;                     // minigame prefab or panel (set in inspector)
+    [SerializeField] private WoodInventory woodInventory;               // optional, auto-found if null
 
     private void Awake()
     {
-        pM = GetComponent<PlayerMovement>();
-        if (wI == null)
-            wI = FindObjectOfType<WoodInventory>();
+        playerMovement = GetComponent<PlayerMovement>();
+
+        if (woodInventory == null)
+            woodInventory = FindObjectOfType<WoodInventory>();
     }
 
     private void Update()
     {
-        if (playerInRange && Input.GetKeyDown(interact))
+        if (playerInRange && Input.GetKeyDown(interactKey))
         {
-            if (interactable != null)
-            {
-                // Pass player reference to minigame
-                Minigame1 mg = minigame1.GetComponent<Minigame1>();
-                if (mg != null)
-                {
-                    mg.PlayerRef = gameObject;       // current player
-                    mg.WoodInventory = wI;          // assign the inventory
-                    // assign tree type to minigame rewards
-                    if (interactable is InteractableTree tree)
-                    {
-                        mg.NormalHitWoodType = tree.treeType;        // normal hit
-                        mg.PerfectHitWoodType = tree.treeType + "Plank"; // perfect hit
-                    }
-                }
+            if (interactable == null || minigame1 == null) return;
 
-                minigame1.SetActive(true); // start minigame
+            // Pass references into the minigame before starting it
+            Minigame1 mg = minigame1.GetComponent<Minigame1>();
+            if (mg != null)
+            {
+                mg.PlayerRef = gameObject;
+                mg.WoodInventory = woodInventory;
+
+                // If interacting with an InteractableTree, pass the tree type for rewards
+                if (interactable is InteractableTree tree)
+                {
+                    mg.NormalHitWoodType = tree.TreeTypeName;
+                    mg.PerfectHitWoodType = tree.TreeTypeName + "Plank";
+                }
             }
+
+            minigame1.SetActive(true);
         }
     }
 
@@ -47,8 +52,12 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (other.CompareTag("interactable"))
         {
-            interactable = other.GetComponent<IInteractable>();
-            playerInRange = true;
+            IInteractable i = other.GetComponent<IInteractable>();
+            if (i != null)
+            {
+                interactable = i;
+                playerInRange = true;
+            }
         }
     }
 
@@ -56,8 +65,12 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (other.CompareTag("interactable"))
         {
-            interactable = null;
-            playerInRange = false;
+            IInteractable i = other.GetComponent<IInteractable>();
+            if (i == interactable)
+            {
+                interactable = null;
+                playerInRange = false;
+            }
         }
     }
 }

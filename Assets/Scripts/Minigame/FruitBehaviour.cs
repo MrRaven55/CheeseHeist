@@ -1,33 +1,36 @@
 using UnityEngine;
 
 /// <summary>
-/// Simple behaviour for falling "fruit" used by Minigame2 (plank crafting).
+/// Behaviour for a falling "fruit" used by Minigame2.
 /// Tracks lane, lifetime and whether it was collected. Does not contain inventory logic.
 /// </summary>
 public class FruitBehaviour : MonoBehaviour
 {
-    [HideInInspector] public int laneIndex;
-    [HideInInspector] public bool collected;
+    // Exposed only in inspector if you want; kept hidden to follow your original layout.
+    [HideInInspector] public int laneIndex; // still available in inspector debugging if required
 
+    // Use a property for external checks instead of a public field.
+    public bool Collected { get; private set; }
+
+    // Lifetime configuration (private; use Init to set dynamically)
     private float lifeTime = 10f;
     private float timer;
 
     /// <summary>
-    /// Initialize the fruit after instantiation.
+    /// Initialize after instantiation. Sets lifetime and lane index.
     /// </summary>
-    /// <param name="lifeSeconds">Seconds before auto-destroy</param>
-    /// <param name="lane">Lane index</param>
     public void Init(float lifeSeconds, int lane)
     {
         lifeTime = lifeSeconds;
         laneIndex = lane;
         timer = 0f;
-        collected = false;
+        Collected = false;
     }
 
-    void Update()
+    private void Update()
     {
-        if (collected) return;
+        // Do nothing if already collected
+        if (Collected) return;
 
         timer += Time.deltaTime;
         if (timer >= lifeTime)
@@ -37,13 +40,13 @@ public class FruitBehaviour : MonoBehaviour
     }
 
     /// <summary>
-    /// Mark the fruit as collected and remove it.
+    /// Mark the fruit as collected and destroy it.
     /// Minigame2 / inventory should call this when appropriate.
     /// </summary>
     public void MarkCollected()
     {
-        if (collected) return;
-        collected = true;
+        if (Collected) return;
+        Collected = true;
         Destroy(gameObject);
     }
 }
