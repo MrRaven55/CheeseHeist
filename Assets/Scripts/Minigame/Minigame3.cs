@@ -1,17 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
+/// <summary>
+/// Two-player nail-and-hammer minigame. Player 1 places nails, Player 2 hammers them.
+/// This script spawns UI nails & hammer, handles placement and timing, and advances rounds.
+/// </summary>
 public class Minigame3 : MonoBehaviour
 {
-    /* ===================== CAMERAS ===================== */
     [Header("Cameras")]
     [SerializeField] private Camera camPlayer1;
     [SerializeField] private Camera camPlayer2;
     [SerializeField] private Camera camMinigame;
 
-    /* ===================== UI / PLANK ===================== */
     [Header("Plank Settings")]
     [Tooltip("Parent RectTransform where planks will spawn")]
     [SerializeField] private RectTransform plankParent;
@@ -19,45 +20,36 @@ public class Minigame3 : MonoBehaviour
     [SerializeField] private RectTransform plankPrefab;
     [SerializeField] private float plankSlideDuration = 0.4f;
 
-    /* ===================== NAIL / HAMMER PREFABS (UI) ===================== */
     [Header("Nail & Hammer Prefabs (UI)")]
-    [Tooltip("UI Nail prefab (RectTransform) - e.g. an Image with a RectTransform")]
     [SerializeField] private GameObject nailPrefab;
-    [Tooltip("UI Hammer prefab (RectTransform) - e.g. an image of hammer")]
     [SerializeField] private GameObject hammerPrefab;
 
-    /* ===================== ANIMATION SETTINGS ===================== */
     [Header("Animation Timing")]
     [SerializeField] private float nailPlaceDuration = 0.35f;
     [SerializeField] private float hammerSwingDuration = 0.2f;
     [SerializeField] private float hammerReturnDuration = 0.15f;
     [SerializeField] private float hammerHitRotation = -55f;
-    [SerializeField] private float nailSinkAmount = 8f; // <--- fixed: define this
+    [SerializeField] private float nailSinkAmount = 8f;
 
     [Header("Spawn Offsets (UI coords)")]
     [SerializeField] private Vector2 nailSpawnOffset = new Vector2(0, 120f);
     [SerializeField] private Vector2 hammerStartOffset = new Vector2(0, 220f);
     [SerializeField] private Vector2 hammerHitOffset = new Vector2(0, -6f);
 
-    /* ===================== NAIL POINTS (INSPECTOR) ===================== */
     [Header("Nail Point Options")]
-    [Tooltip("If enabled you can manually set anchored positions for Nail Point 1 & 2 (relative to the plank RectTransform). Otherwise the script will try to find child transforms named NailPoint1 / NailPoint2 inside the plank prefab.")]
     [SerializeField] private bool useCustomNailPoints = false;
     [SerializeField] private Vector2 nailPoint1Position = new Vector2(-40f, 0f);
     [SerializeField] private Vector2 nailPoint2Position = new Vector2(40f, 0f);
 
-    /* ===================== TIMER ===================== */
     [Header("Timer")]
     [SerializeField] private float startTime = 6f;
     [SerializeField] private float timeDecreasePerRound = 0.5f;
-    private float currentTime;
 
-    /* ===================== INPUT ===================== */
-    [Header("Input")]
+    [Header("Input (strings from Input Manager)")]
     [SerializeField] private string placeKeyP1 = "Fire1";
     [SerializeField] private string hammerKeyP2 = "Fire2";
 
-    /* ===================== STATE ===================== */
+    // runtime state
     private int nailsPlaced;
     private int nailsHammered;
     private int round;
@@ -67,23 +59,23 @@ public class Minigame3 : MonoBehaviour
     private RectTransform currentPlank;
     private bool plankReady;
 
-    // track spawned nails and whether each is hammered
+    // spawned nails + flags
     private List<RectTransform> spawnedNails = new List<RectTransform>();
     private List<bool> nailIsHammered = new List<bool>();
 
-    /* ===================== UNITY ===================== */
+    private float currentTime;
 
-    void Start()
+    private void Start()
     {
         if (camMinigame) camMinigame.gameObject.SetActive(false);
 
-        if (plankPrefab == null) Debug.LogWarning("Minigame3: plankPrefab is not assigned in inspector.");
-        if (plankParent == null) Debug.LogWarning("Minigame3: plankParent is not assigned in inspector.");
-        if (nailPrefab == null) Debug.LogWarning("Minigame3: nailPrefab is not assigned in inspector.");
-        if (hammerPrefab == null) Debug.LogWarning("Minigame3: hammerPrefab is not assigned in inspector.");
+        if (plankPrefab == null) Debug.LogWarning("Minigame3: plankPrefab is not assigned.");
+        if (plankParent == null) Debug.LogWarning("Minigame3: plankParent is not assigned.");
+        if (nailPrefab == null) Debug.LogWarning("Minigame3: nailPrefab is not assigned.");
+        if (hammerPrefab == null) Debug.LogWarning("Minigame3: hammerPrefab is not assigned.");
     }
 
-    void Update()
+    private void Update()
     {
         if (!minigameActive) return;
 
@@ -91,8 +83,9 @@ public class Minigame3 : MonoBehaviour
         HandleInput();
     }
 
-    /* ===================== MINIGAME FLOW ===================== */
-
+    /// <summary>
+    /// Caller to start the minigame (activates cameras and initial state).
+    /// </summary>
     public void StartMinigame()
     {
         minigameActive = true;
@@ -109,13 +102,13 @@ public class Minigame3 : MonoBehaviour
     {
         round++;
 
-        // cleanup any old nails/hammers
+        // cleanup previous
         CleanupNails();
 
         nailsPlaced = 0;
         nailsHammered = 0;
-        spawnedNails.Clear();
-        nailIsHammered.Clear();
+        spawnedNails = new List<RectTransform>(2);
+        nailIsHammered = new List<bool>(2);
 
         canPlace = true;
         canHammer = false;
@@ -130,13 +123,13 @@ public class Minigame3 : MonoBehaviour
     {
         if (plankPrefab == null || plankParent == null)
         {
-            Debug.LogWarning("Minigame3: Missing plankPrefab or plankParent.");
+            Debug.LogWarning("Minigame3: Missing plank prefab/parent.");
             yield break;
         }
 
-        // instantiate plank UI under plankParent
+        // instantiate under parent so coordinates are compatible
         RectTransform newPlank = Instantiate(plankPrefab, plankParent);
-        // start position: below screen (adjust depending on your layout)
+        // start below the visible area (tweak per UI)
         Vector2 startPos = new Vector2(0, -600f);
         Vector2 endPos = Vector2.zero;
         newPlank.anchoredPosition = startPos;
@@ -150,19 +143,14 @@ public class Minigame3 : MonoBehaviour
             yield return null;
         }
 
-        // delete previous plank if exists
         if (currentPlank != null)
             Destroy(currentPlank.gameObject);
 
         currentPlank = newPlank;
         plankReady = true;
-
-        // ensure lists have capacity for 2 nails
         spawnedNails = new List<RectTransform>(2);
         nailIsHammered = new List<bool>(2);
     }
-
-    /* ===================== INPUT ===================== */
 
     private void HandleInput()
     {
@@ -181,23 +169,19 @@ public class Minigame3 : MonoBehaviour
                 return;
             }
 
-            // attempt to hammer next not-yet-hammered nail
             HammerNail();
         }
     }
 
     private void PlaceNail()
     {
-        if (!plankReady)
-            return;
+        if (!plankReady) return;
+        if (nailsPlaced >= 2) return;
 
-        if (nailsPlaced >= 2)
-            return;
-
-        int indexToPlace = nailsPlaced; // 0 or 1
+        int indexToPlace = nailsPlaced;
         nailsPlaced++;
 
-        // reserve a null until coroutine returns
+        // reserve slot to be filled by coroutine
         spawnedNails.Add(null);
         nailIsHammered.Add(false);
 
@@ -206,7 +190,6 @@ public class Minigame3 : MonoBehaviour
         if (nailsPlaced >= 2)
         {
             canPlace = false;
-            // allow a short delay so P2 reacts visually after second nail finishes placement
             StartCoroutine(EnableHammerAfterDelay(0.05f + nailPlaceDuration));
         }
     }
@@ -225,30 +208,27 @@ public class Minigame3 : MonoBehaviour
             yield break;
         }
 
-        // get the target anchored position for this nail (relative to the plank RectTransform)
         if (!TryGetNailAnchorPosition(nailIndex + 1, out Vector2 targetAnch))
         {
-            Debug.LogWarning("Nail point not found and custom points not set. Nail placement aborted.");
+            Debug.LogWarning("Minigame3: Nail anchor not found.");
             yield break;
         }
 
         if (nailPrefab == null)
         {
-            Debug.LogWarning("Nail prefab missing.");
+            Debug.LogWarning("Minigame3: nailPrefab missing.");
             yield break;
         }
 
-        // instantiate nail as UI under the plank (so coordinates match RectTransform)
         GameObject nailGO = Instantiate(nailPrefab, currentPlank);
         RectTransform nailRT = nailGO.GetComponent<RectTransform>();
         if (nailRT == null)
         {
-            Debug.LogWarning("Nail prefab has no RectTransform.");
+            Debug.LogWarning("Minigame3: nailPrefab has no RectTransform.");
             Destroy(nailGO);
             yield break;
         }
 
-        // start above the target
         Vector2 startAnch = targetAnch + nailSpawnOffset;
         nailRT.anchoredPosition = startAnch;
         nailRT.localRotation = Quaternion.identity;
@@ -262,7 +242,7 @@ public class Minigame3 : MonoBehaviour
             yield return null;
         }
 
-        // sink it a bit into the plank to look placed
+        // sink animation
         Vector2 sunkPos = targetAnch + new Vector2(0, -nailSinkAmount);
         float sinkT = 0f;
         float sinkDur = 0.12f;
@@ -275,14 +255,12 @@ public class Minigame3 : MonoBehaviour
             yield return null;
         }
 
-        // store reference
         spawnedNails[nailIndex] = nailRT;
         nailIsHammered[nailIndex] = false;
     }
 
     private void HammerNail()
     {
-        // pick first placed nail that is not yet hammered
         int targetIndex = -1;
         for (int i = 0; i < spawnedNails.Count; i++)
         {
@@ -295,14 +273,11 @@ public class Minigame3 : MonoBehaviour
 
         if (targetIndex == -1)
         {
-            // nothing to hammer (shouldn't happen if canHammer is correctly gated)
             FailMinigame();
             return;
         }
 
-        // mark that hammer action started for this nail to prevent double hammering
         nailIsHammered[targetIndex] = true;
-
         StartCoroutine(HammerCoroutine(targetIndex));
     }
 
@@ -314,28 +289,24 @@ public class Minigame3 : MonoBehaviour
             yield break;
         }
 
-        // instantiate hammer UI under same parent as plank so coordinates align
         GameObject hammerGO = Instantiate(hammerPrefab, currentPlank);
         RectTransform hammerRT = hammerGO.GetComponent<RectTransform>();
         if (hammerRT == null)
         {
-            Debug.LogWarning("Hammer prefab has no RectTransform.");
+            Debug.LogWarning("Minigame3: hammerPrefab has no RectTransform.");
             Destroy(hammerGO);
             yield break;
         }
 
-        // optional: set pivot so rotation looks like a swing (e.g., top-left). You can tweak in prefab.
         hammerRT.localRotation = Quaternion.Euler(0, 0, 0);
 
-        // start position above hammerStartOffset relative to nail
         Vector2 nailAnch = targetNail.anchoredPosition;
         Vector2 startAnch = nailAnch + hammerStartOffset;
         Vector2 hitAnch = nailAnch + hammerHitOffset;
 
         hammerRT.anchoredPosition = startAnch;
-        float t = 0f;
 
-        // swing down (position + rotation)
+        float t = 0f;
         while (t < hammerSwingDuration)
         {
             t += Time.deltaTime;
@@ -346,7 +317,7 @@ public class Minigame3 : MonoBehaviour
             yield return null;
         }
 
-        // small hit feedback on nail: tiny jiggle / deeper sink
+        // nail jiggle / sink effect
         Vector2 originalNailPos = targetNail.anchoredPosition;
         Vector2 deeperPos = originalNailPos + new Vector2(0, -3f);
         float jigT = 0f;
@@ -358,7 +329,6 @@ public class Minigame3 : MonoBehaviour
             targetNail.anchoredPosition = Vector2.Lerp(originalNailPos, deeperPos, p);
             yield return null;
         }
-        // return nail a touch
         jigT = 0f;
         while (jigT < jigDur)
         {
@@ -368,10 +338,9 @@ public class Minigame3 : MonoBehaviour
             yield return null;
         }
 
-        // mark hammered
         nailsHammered++;
 
-        // move hammer up and remove
+        // hammer return
         t = 0f;
         Vector2 returnPos = startAnch + new Vector2(0, 60f);
         Vector2 beforeReturn = hammerRT.anchoredPosition;
@@ -387,16 +356,13 @@ public class Minigame3 : MonoBehaviour
 
         Destroy(hammerGO);
 
-        // if round finished (both nails hammered) -> transition to next round
+        // round finished
         if (nailsHammered >= 2)
         {
-            // small delay so player can see success
             yield return new WaitForSeconds(0.12f);
             StartNextRound();
         }
     }
-
-    /* ===================== TIMER ===================== */
 
     private void HandleTimer()
     {
@@ -407,16 +373,13 @@ public class Minigame3 : MonoBehaviour
         }
     }
 
-    /* ===================== FAIL / END ===================== */
-
     private void FailMinigame()
     {
-        Debug.Log("Minigame Failed");
+        Debug.Log("Minigame3: Failed");
         minigameActive = false;
         canPlace = false;
         canHammer = false;
 
-        // stop any running coroutines spawned by this MonoBehaviour
         StopAllCoroutines();
 
         if (camMinigame) camMinigame.gameObject.SetActive(false);
@@ -443,23 +406,20 @@ public class Minigame3 : MonoBehaviour
         nailIsHammered.Clear();
     }
 
-    /* ===================== HELPERS ===================== */
-
-    // Try to get anchored position for nail point (relative to currentPlank).
-    // Returns false if neither custom points set nor child transforms found.
+    /// <summary>
+    /// Try to get anchored position for nail point (1 or 2).
+    /// If useCustomNailPoints is true, returns inspector values; otherwise tries to find child transforms named "NailPoint1"/"NailPoint2".
+    /// </summary>
     private bool TryGetNailAnchorPosition(int pointNumber, out Vector2 anchoredPos)
     {
         anchoredPos = Vector2.zero;
 
-        // if using custom inspector positions, return them
         if (useCustomNailPoints)
         {
-            if (pointNumber == 1) { anchoredPos = nailPoint1Position; return true; }
-            if (pointNumber == 2) { anchoredPos = nailPoint2Position; return true; }
-            return false;
+            anchoredPos = pointNumber == 1 ? nailPoint1Position : nailPoint2Position;
+            return true;
         }
 
-        // else try to find child transform on the currentPlank
         if (currentPlank == null) return false;
 
         string nameA = $"NailPoint{pointNumber}";

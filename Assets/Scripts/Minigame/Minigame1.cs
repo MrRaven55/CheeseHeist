@@ -1,6 +1,10 @@
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// Minigame that moves a UI piece up/down and the player must "chop" inside a hit area.
+/// Scores and rewards wood via WoodInventory. Game resets on disable.
+/// </summary>
 public class Minigame1 : MonoBehaviour
 {
     [Header("Timer")]
@@ -9,8 +13,8 @@ public class Minigame1 : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private RectTransform movingPiece;
-    [SerializeField] private float moveSpeed = 300f; // UI pixels per second
-    [SerializeField] private float moveRange = 250f;  // pixels up/down
+    [SerializeField] private float moveSpeed = 300f; // UI px/sec
+    [SerializeField] private float moveRange = 250f; // px up/down
 
     private float startY;
     private int direction = 1;
@@ -21,7 +25,7 @@ public class Minigame1 : MonoBehaviour
     [SerializeField] private float minimumHitAreaHeight = 20f;
 
     [Header("Rewards")]
-    [SerializeField] private float perfectThresholdHeight = 40f;
+    [SerializeField] private float perfectThresholdHeight = 40f; // if hitArea height <= this, it's a perfect hit
     [SerializeField] private int normalReward = 10;
     [SerializeField] private int perfectReward = 20;
     [SerializeField] private int scoreGoal = 40;
@@ -32,64 +36,51 @@ public class Minigame1 : MonoBehaviour
     [SerializeField] private string _normalHitWoodType = "Oak";
     [SerializeField] private string _perfectHitWoodType = "OakPlank";
 
-    // Public getters & setters
-    public WoodInventory WoodInventory
-    {
-        get => _woodInventory;
-        set => _woodInventory = value;
-    }
-
-    public GameObject PlayerRef
-    {
-        get => _playerRef;
-        set => _playerRef = value;
-    }
-
-    public string NormalHitWoodType
-    {
-        get => _normalHitWoodType;
-        set => _normalHitWoodType = value;
-    }
-
-    public string PerfectHitWoodType
-    {
-        get => _perfectHitWoodType;
-        set => _perfectHitWoodType = value;
-    }
+    // expose via properties so PlayerInteraction can set them safely
+    public WoodInventory WoodInventory { get => _woodInventory; set => _woodInventory = value; }
+    public GameObject PlayerRef { get => _playerRef; set => _playerRef = value; }
+    public string NormalHitWoodType { get => _normalHitWoodType; set => _normalHitWoodType = value; }
+    public string PerfectHitWoodType { get => _perfectHitWoodType; set => _perfectHitWoodType = value; }
 
     [Header("Runtime")]
-    public int score;
-    public KeyCode Chop = KeyCode.Space;
+    [SerializeField] private int score;
+    [SerializeField] private KeyCode chopKey = KeyCode.Space;
 
     private Vector2 startPiecePosition;
     private Vector2 startHitAreaSize;
 
-    [Header("Events")]
-    public UnityEvent onPerfect;
-    public UnityEvent onHit;
-    public UnityEvent onMiss;
-    public UnityEvent onEnd;
+    [Header("Events (Inspector)")]
+    [SerializeField] private UnityEvent onPerfect;
+    [SerializeField] private UnityEvent onHit;
+    [SerializeField] private UnityEvent onMiss;
+    [SerializeField] private UnityEvent onEnd;
 
-    void OnEnable()
+    private void OnEnable()
     {
+        // initialize runtime state
         timer = gameDuration;
-
         if (movingPiece != null)
+        {
             startPiecePosition = movingPiece.anchoredPosition;
+            startY = movingPiece.anchoredPosition.y;
+        }
+        else
+        {
+            startPiecePosition = Vector2.zero;
+            startY = 0f;
+        }
 
-        if (hitArea != null)
-            startHitAreaSize = hitArea.sizeDelta;
-
-        startY = (movingPiece != null) ? movingPiece.anchoredPosition.y : 0f;
+        if (hitArea != null) startHitAreaSize = hitArea.sizeDelta;
         direction = 1;
         score = 0;
     }
 
-    void Update()
+    private void Update()
     {
         RunTimer();
         MovePiece();
-        CheckHit();
+        if (Input.GetKeyDown(chopKey))
+            CheckHit();
     }
 
     private void RunTimer()
@@ -112,45 +103,43 @@ public class Minigame1 : MonoBehaviour
         movingPiece.anchoredPosition = pos;
     }
 
+    /// <summary>
+    /// Called when the player attempts a chop. Determines miss/normal/perfect,
+    /// adjusts score, shrinks hit area and rewards wood via inventory.
+    /// </summary>
     private void CheckHit()
     {
-        if (!Input.GetKeyDown(Chop)) return;
-
         if (!IsInsideHitArea())
         {
-            Miss();
+            // Miss
             onMiss?.Invoke();
-            Debug.Log("Miss!");
+            Debug.Log("Minigame1: Miss!");
             return;
         }
 
-        // Perfect or normal hit
+        // Decide between perfect and normal based on current hitArea size
         if (hitArea != null && hitArea.sizeDelta.y <= perfectThresholdHeight)
         {
             score += perfectReward;
-            PerfectHit();
             onPerfect?.Invoke();
-            Debug.Log("PERFECT! +" + perfectReward);
+            Debug.Log($"Minigame1: PERFECT! +{perfectReward}");
 
-            // Reward wood
             if (_woodInventory != null && _playerRef != null)
                 _woodInventory.AddWood(_perfectHitWoodType, _playerRef);
         }
         else
         {
             score += normalReward;
-            Hit();
             onHit?.Invoke();
-            Debug.Log("Good hit +" + normalReward);
+            Debug.Log($"Minigame1: Good hit +{normalReward}");
 
             if (_woodInventory != null && _playerRef != null)
                 _woodInventory.AddWood(_normalHitWoodType, _playerRef);
         }
 
-        // Shrink hit area
         ShrinkHitArea();
 
-        // Cap score at goal
+        // Cap and end if reached goal
         if (score >= scoreGoal)
         {
             score = scoreGoal;
@@ -165,8 +154,7 @@ public class Minigame1 : MonoBehaviour
         float pieceY = movingPiece.anchoredPosition.y;
         float hitY = hitArea.anchoredPosition.y;
         float hitHalfHeight = hitArea.sizeDelta.y / 2f;
-
-        return pieceY >= hitY - hitHalfHeight && pieceY <= hitY + hitHalfHeight;
+        return pieceY >= (hitY - hitHalfHeight) && pieceY <= (hitY + hitHalfHeight);
     }
 
     private void ShrinkHitArea()
@@ -174,11 +162,7 @@ public class Minigame1 : MonoBehaviour
         if (hitArea == null) return;
 
         Vector2 size = hitArea.sizeDelta;
-        size.y -= hitAreaShrinkAmount;
-
-        if (size.y < minimumHitAreaHeight)
-            size.y = minimumHitAreaHeight;
-
+        size.y = Mathf.Max(minimumHitAreaHeight, size.y - hitAreaShrinkAmount);
         hitArea.sizeDelta = size;
     }
 
@@ -188,16 +172,13 @@ public class Minigame1 : MonoBehaviour
         direction = 1;
         score = 0;
 
-        if (movingPiece != null)
-            movingPiece.anchoredPosition = startPiecePosition;
-
-        if (hitArea != null)
-            hitArea.sizeDelta = startHitAreaSize;
+        if (movingPiece != null) movingPiece.anchoredPosition = startPiecePosition;
+        if (hitArea != null) hitArea.sizeDelta = startHitAreaSize;
     }
 
     private void EndMinigame()
     {
-        Debug.Log("Minigame ended");
+        Debug.Log("Minigame1: ended");
         onEnd?.Invoke();
         gameObject.SetActive(false);
     }
@@ -205,10 +186,10 @@ public class Minigame1 : MonoBehaviour
     private void OnDisable()
     {
         ResetGame();
-        Debug.Log("Minigame reset & disabled");
+        Debug.Log("Minigame1: reset & disabled");
     }
 
-    // Callbacks you can subscribe to in the inspector
+    // Inspector-callable callbacks (kept empty so designers can hook events in the inspector)
     public void PerfectHit() { }
     public void Hit() { }
     public void Miss() { }

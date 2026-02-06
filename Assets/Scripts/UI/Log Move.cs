@@ -1,70 +1,87 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Simple UI animation that moves a RectTransform from a start point to a target UI corner.
+/// Fixed coroutine timing (previously set position immediately and then lerped).
+/// </summary>
 public class LogMove : MonoBehaviour
 {
-    public float moveDuration = 1f;
+    [SerializeField] private float moveDuration = 1f;
+    [SerializeField] private string uiTagName;                    // optional tag to find target
+    [SerializeField] private RectTransform endPointOverride;      // optional explicit target override
 
-    RectTransform rectTransform;
-
+    private RectTransform rectTransform;
     private RectTransform endPoint;
-   
-    public int startPosition;
-    public string uiTagName;
+
+    // optional runtime state (keeps track which player triggered the log)
+    private int startPosition;
 
     private void Awake()
     {
-
         rectTransform = GetComponent<RectTransform>();
-        GameObject logUIElement = GameObject.FindGameObjectWithTag(uiTagName);
-        endPoint = logUIElement.GetComponent<RectTransform>();
 
+        // prefer explicit override, otherwise try to find by tag
+        if (endPointOverride != null)
+        {
+            endPoint = endPointOverride;
+        }
+        else if (!string.IsNullOrEmpty(uiTagName))
+        {
+            GameObject target = GameObject.FindGameObjectWithTag(uiTagName);
+            if (target != null)
+            {
+                endPoint = target.GetComponent<RectTransform>();
+            }
+            else
+            {
+                Debug.LogWarning($"LogMove: No object found with tag '{uiTagName}'", this);
+            }
+        }
     }
-    // Start is called before the first frame update
+
+    /// <summary>
+    /// Starts the UI move from the given anchored start position.
+    /// </summary>
     public void StartMove(Vector2 start)
     {
-        //start position for the UI
+        if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
 
         rectTransform.anchoredPosition = start;
 
-        //end position for the UI
-        Vector2 targetPosition = endPoint.anchoredPosition;
+        if (endPoint == null)
+        {
+            Debug.LogWarning("LogMove: endPoint is null, cannot move.", this);
+            return;
+        }
 
-        StartCoroutine(MoveToCorner(targetPosition));
-
+        StartCoroutine(MoveToCorner(endPoint.anchoredPosition));
     }
 
-    public void Interact(int PlayerID)
+    /// <summary>
+    /// Optional: store which player invoked the movement.
+    /// </summary>
+    public void Interact(int playerID)
     {
-        if (PlayerID == 1)
-        {
-            startPosition = 1;
-        }
-        else if (PlayerID == 2)
-        {
-            startPosition = 2;
-        }
+        startPosition = playerID == 1 ? 1 : 2;
     }
 
-    IEnumerator MoveToCorner(Vector2 target)
+    private IEnumerator MoveToCorner(Vector2 target)
     {
         Vector2 start = rectTransform.anchoredPosition;
         float elapsed = 0f;
-        rectTransform.anchoredPosition = target;
+
+        // Smoothly interpolate over moveDuration
         while (elapsed < moveDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / moveDuration;
-
+            float t = Mathf.Clamp01(elapsed / moveDuration);
             rectTransform.anchoredPosition = Vector2.Lerp(start, target, t);
             yield return null;
         }
 
-
-
-        if (moveDuration < elapsed)
-            Destroy(gameObject);
-
+        // Ensure exact end position and destroy the UI element
+        rectTransform.anchoredPosition = target;
+        Destroy(gameObject);
     }
 }

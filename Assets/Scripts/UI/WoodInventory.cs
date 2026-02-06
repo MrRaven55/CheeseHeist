@@ -1,50 +1,71 @@
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Central wood inventory. Counts are private but exposed via read-only properties.
+/// Use AddWood(...) to change amounts and trigger UI animations.
+/// </summary>
 public class WoodInventory : MonoBehaviour
 {
-    /* ===================== RESOURCES ===================== */
-    [Header("Raw Wood")]
-    public int oak;
-    public int birch;
-    public int pine;
+    /* ========== RESOURCE COUNTS (serialized but private) ========== */
+    [Header("Raw Wood (counts)")]
+    [SerializeField] private int oak;
+    [SerializeField] private int birch;
+    [SerializeField] private int pine;
 
-    [Header("Planks")]
-    public int oakPlanks;
-    public int birchPlanks;
-    public int pinePlanks;
+    [Header("Planks (counts)")]
+    [SerializeField] private int oakPlanks;
+    [SerializeField] private int birchPlanks;
+    [SerializeField] private int pinePlanks;
 
     [Header("Tools")]
-    public int axeTier = 1;
+    [SerializeField] private int axeTier = 1; // amount gained per chop = axeTier
 
-    /* ===================== UI ===================== */
-    [Header("UI Text")]
-    public TextMeshProUGUI oakUI;
-    public TextMeshProUGUI birchUI;
-    public TextMeshProUGUI pineUI;
-    public TextMeshProUGUI oakPlanksUI;
-    public TextMeshProUGUI birchPlanksUI;
-    public TextMeshProUGUI pinePlanksUI;
+    /* ===================== UI REFS ===================== */
+    [Header("UI Text (optional)")]
+    [SerializeField] private TextMeshProUGUI oakUI;
+    [SerializeField] private TextMeshProUGUI birchUI;
+    [SerializeField] private TextMeshProUGUI pineUI;
+    [SerializeField] private TextMeshProUGUI oakPlanksUI;
+    [SerializeField] private TextMeshProUGUI birchPlanksUI;
+    [SerializeField] private TextMeshProUGUI pinePlanksUI;
 
-    /* ===================== UI ANIMATIONS ===================== */
-    [Header("Log / Plank Animations")]
-    public LogMove oakLog;
-    public LogMove birchLog;
-    public LogMove pineLog;
+    [Header("Log / Plank UI animations (optional prefabs)")]
+    [SerializeField] private LogMove oakLog;
+    [SerializeField] private LogMove birchLog;
+    [SerializeField] private LogMove pineLog;
+    [SerializeField] private LogMove oakPlank;
+    [SerializeField] private LogMove birchPlank;
+    [SerializeField] private LogMove pinePlank;
 
-    public LogMove oakPlank;
-    public LogMove birchPlank;
-    public LogMove pinePlank;
+    [SerializeField] private Canvas canvas; // parent for animated logs/planks
 
-    public Canvas canvas;
     private LogMove activeLogMove;
 
-    void Update()
+    /* ========== PUBLIC READ-ONLY PROPERTIES ========== */
+    public int Oak => oak;
+    public int Birch => birch;
+    public int Pine => pine;
+
+    public int OakPlanks => oakPlanks;
+    public int BirchPlanks => birchPlanks;
+    public int PinePlanks => pinePlanks;
+
+    public int AxeTier
+    {
+        get => axeTier;
+        set => axeTier = Mathf.Max(1, value);
+    }
+
+    private void Update()
     {
         UpdateUI();
     }
 
-    /* ===================== PUBLIC API ===================== */
+    /// <summary>
+    /// Centralized method to add wood or planks. Type strings are kept for compatibility.
+    /// Valid types: "Oak", "Birch", "Pine", "OakPlank", "BirchPlank", "PinePlank"
+    /// </summary>
     public void AddWood(string type, GameObject player)
     {
         activeLogMove = null;
@@ -53,17 +74,17 @@ public class WoodInventory : MonoBehaviour
         {
             case "Oak":
                 oak += axeTier;
-                activeLogMove = Instantiate(oakLog, canvas.transform);
+                activeLogMove = InstantiateIfAssigned(oakLog);
                 break;
 
             case "Birch":
                 birch += axeTier;
-                activeLogMove = Instantiate(birchLog, canvas.transform);
+                activeLogMove = InstantiateIfAssigned(birchLog);
                 break;
 
             case "Pine":
                 pine += axeTier;
-                activeLogMove = Instantiate(pineLog, canvas.transform);
+                activeLogMove = InstantiateIfAssigned(pineLog);
                 break;
 
             case "OakPlank":
@@ -71,7 +92,7 @@ public class WoodInventory : MonoBehaviour
                 {
                     oak -= 3;
                     oakPlanks++;
-                    activeLogMove = Instantiate(oakPlank, canvas.transform);
+                    activeLogMove = InstantiateIfAssigned(oakPlank);
                 }
                 break;
 
@@ -80,7 +101,7 @@ public class WoodInventory : MonoBehaviour
                 {
                     birch -= 3;
                     birchPlanks++;
-                    activeLogMove = Instantiate(birchPlank, canvas.transform);
+                    activeLogMove = InstantiateIfAssigned(birchPlank);
                 }
                 break;
 
@@ -89,11 +110,16 @@ public class WoodInventory : MonoBehaviour
                 {
                     pine -= 3;
                     pinePlanks++;
-                    activeLogMove = Instantiate(pinePlank, canvas.transform);
+                    activeLogMove = InstantiateIfAssigned(pinePlank);
                 }
+                break;
+
+            default:
+                Debug.LogWarning($"WoodInventory.AddWood: Unknown type '{type}'", this);
                 break;
         }
 
+        // If an animation prefab was assigned and a player passed in, animate it
         if (activeLogMove != null && player != null)
         {
             Vector2 startPos = GetPlayerUIPosition(player);
@@ -101,22 +127,31 @@ public class WoodInventory : MonoBehaviour
         }
     }
 
-    /* ===================== HELPERS ===================== */
+    // Instantiate helper that ensures canvas and prefab exist
+    private LogMove InstantiateIfAssigned(LogMove prefab)
+    {
+        if (prefab == null || canvas == null) return null;
+        return Instantiate(prefab, canvas.transform);
+    }
+
+    // Convert a player's PlayerMovement.playerID into a UI start position
     private Vector2 GetPlayerUIPosition(GameObject player)
     {
         Vector2 pos = Vector2.zero;
         PlayerMovement pm = player.GetComponent<PlayerMovement>();
-
         if (pm == null) return pos;
 
-        if (pm.playerID == 1)
+        if (pm.PlayerID == 1)
             pos.x = -Screen.width * 0.25f;
-        else if (pm.playerID == 2)
+        else if (pm.PlayerID == 2)
             pos.x = Screen.width * 0.25f;
 
+        pos.y = 0f;
         return pos;
     }
 
+    // Update UI text once per frame (cheap, but fine for small projects).
+    // You could optimize to update only when values change.
     private void UpdateUI()
     {
         if (oakUI) oakUI.text = $"Oak: {oak}";
