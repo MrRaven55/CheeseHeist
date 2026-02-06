@@ -1,18 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class WoodInventory : MonoBehaviour
 {
-    public int oak = 0;
-    public int birch = 0;
-    public int pine = 0;
-    public int oakPlanks = 0;
-    public int birchPlanks = 0;
-    public int pinePlanks = 0;
+    /* ===================== RESOURCES ===================== */
+    [Header("Raw Wood")]
+    public int oak;
+    public int birch;
+    public int pine;
+
+    [Header("Planks")]
+    public int oakPlanks;
+    public int birchPlanks;
+    public int pinePlanks;
+
+    [Header("Tools")]
     public int axeTier = 1;
 
+    /* ===================== UI ===================== */
+    [Header("UI Text")]
     public TextMeshProUGUI oakUI;
     public TextMeshProUGUI birchUI;
     public TextMeshProUGUI pineUI;
@@ -20,120 +26,105 @@ public class WoodInventory : MonoBehaviour
     public TextMeshProUGUI birchPlanksUI;
     public TextMeshProUGUI pinePlanksUI;
 
-    LogMove lm = null;
-   
-
+    /* ===================== UI ANIMATIONS ===================== */
+    [Header("Log / Plank Animations")]
     public LogMove oakLog;
     public LogMove birchLog;
     public LogMove pineLog;
+
     public LogMove oakPlank;
     public LogMove birchPlank;
     public LogMove pinePlank;
+
     public Canvas canvas;
-   
+    private LogMove activeLogMove;
 
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-       
-    }
-
-
-    // Update is called once per frame
     void Update()
     {
-        //sets the UI texts to correct wordings
-        oakUI.text = "Oak: " + oak;
-        birchUI.text = "Birch: " + birch;
-        pineUI.text = "Pine: " + pine;
-        oakPlanksUI.text = "Oak Planks: " + oakPlanks;
-        birchPlanksUI.text = "Birch Planks: " + birchPlanks;
-        pinePlanksUI.text = "Pine Planks: " + pinePlanks;
+        UpdateUI();
     }
 
-    public void AddWood(string treeType, GameObject player)
+    /* ===================== PUBLIC API ===================== */
+    public void AddWood(string type, GameObject player)
     {
-        if (treeType =="Oak")
+        activeLogMove = null;
+
+        switch (type)
         {
-            getOak();
-             lm = Instantiate(oakLog, canvas.transform);
-        }
-            
-        if (treeType == "Pine")
-        {
-            lm = Instantiate(pineLog, canvas.transform);
-            getPine();
-             
-        }
-            
-        if(treeType == "Birch")
-        {
-            getBirch();
-             lm = Instantiate(birchLog, canvas.transform);
-        }
-        if (treeType == "OakPlank")
-        {
-            getOakPlank();
-            lm = Instantiate(oakPlank, canvas.transform);
-        }
-        if (treeType == "PinePlank")
-        {
-            getPinePlank();
-            lm = Instantiate(pinePlank, canvas.transform);
-        }
-        if (treeType == "BirchPlank")
-        {
-            getBirchPlank();
-            lm = Instantiate(birchPlank, canvas.transform);
+            case "Oak":
+                oak += axeTier;
+                activeLogMove = Instantiate(oakLog, canvas.transform);
+                break;
+
+            case "Birch":
+                birch += axeTier;
+                activeLogMove = Instantiate(birchLog, canvas.transform);
+                break;
+
+            case "Pine":
+                pine += axeTier;
+                activeLogMove = Instantiate(pineLog, canvas.transform);
+                break;
+
+            case "OakPlank":
+                if (oak >= 3)
+                {
+                    oak -= 3;
+                    oakPlanks++;
+                    activeLogMove = Instantiate(oakPlank, canvas.transform);
+                }
+                break;
+
+            case "BirchPlank":
+                if (birch >= 3)
+                {
+                    birch -= 3;
+                    birchPlanks++;
+                    activeLogMove = Instantiate(birchPlank, canvas.transform);
+                }
+                break;
+
+            case "PinePlank":
+                if (pine >= 3)
+                {
+                    pine -= 3;
+                    pinePlanks++;
+                    activeLogMove = Instantiate(pinePlank, canvas.transform);
+                }
+                break;
         }
 
-
-
-
-
-        Vector2 playerPosition = new Vector2(0, 0);
-        if(player.GetComponent<PlayerMovement>().playerID == 1)
+        if (activeLogMove != null && player != null)
         {
-            playerPosition.x = -Screen.width * 0.25f;
+            Vector2 startPos = GetPlayerUIPosition(player);
+            activeLogMove.StartMove(startPos);
         }
-        if(player.GetComponent<PlayerMovement>().playerID == 2)
-        {
-            playerPosition.x = Screen.width * 0.25f;
-        }
-        if(lm != null)
-        lm.StartMove(playerPosition);
     }
-   
 
-    //refrenses for easy access for mini games
-    public void getOak()
+    /* ===================== HELPERS ===================== */
+    private Vector2 GetPlayerUIPosition(GameObject player)
     {
-        oak += axeTier;
+        Vector2 pos = Vector2.zero;
+        PlayerMovement pm = player.GetComponent<PlayerMovement>();
 
+        if (pm == null) return pos;
+
+        if (pm.playerID == 1)
+            pos.x = -Screen.width * 0.25f;
+        else if (pm.playerID == 2)
+            pos.x = Screen.width * 0.25f;
+
+        return pos;
     }
-    public void getBirch()
+
+    private void UpdateUI()
     {
-        birch += axeTier;
-    }
-    public void getPine()
-    {
-        pine += axeTier;
-    }
-    public void getOakPlank()
-    {
-        oakPlanks += 1;
-       // oak -= 3;
-    }
-    public void getPinePlank()
-    {
-        pinePlanks += 1;
-        pine -= 3;
-    }
-    public void getBirchPlank()
-    {
-        birchPlanks += 1;
-        birch -= 3;
+        if (oakUI) oakUI.text = $"Oak: {oak}";
+        if (birchUI) birchUI.text = $"Birch: {birch}";
+        if (pineUI) pineUI.text = $"Pine: {pine}";
+
+        if (oakPlanksUI) oakPlanksUI.text = $"Oak Planks: {oakPlanks}";
+        if (birchPlanksUI) birchPlanksUI.text = $"Birch Planks: {birchPlanks}";
+        if (pinePlanksUI) pinePlanksUI.text = $"Pine Planks: {pinePlanks}";
     }
 }

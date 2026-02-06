@@ -1,46 +1,46 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class PlayerInteraction : MonoBehaviour
 {
-
-    PlayerMovement pM;
-    public  WoodInventory wI;
-    public KeyCode interact;
-    public string treeType;
-
-    int playerID;
+    private PlayerMovement pM;
     private bool playerInRange;
     private IInteractable interactable;
+
+    [Header("References")]
+    public KeyCode interact = KeyCode.E;
     public GameObject minigame1;
+    public WoodInventory wI;
 
     private void Awake()
     {
-        pM = gameObject.GetComponent<PlayerMovement>();
-        
-
-
-        playerID = pM.playerID;
+        pM = GetComponent<PlayerMovement>();
+        if (wI == null)
+            wI = FindObjectOfType<WoodInventory>();
     }
 
     private void Update()
     {
-        if (playerInRange)
+        if (playerInRange && Input.GetKeyDown(interact))
         {
-           
-                if (Input.GetKeyDown(interact))
+            if (interactable != null)
+            {
+                // Pass player reference to minigame
+                Minigame1 mg = minigame1.GetComponent<Minigame1>();
+                if (mg != null)
                 {
-                // interactable.Interact(gameObject);
-                     minigame1.SetActive(true);
-              
+                    mg.PlayerRef = gameObject;       // current player
+                    mg.WoodInventory = wI;          // assign the inventory
+                    // assign tree type to minigame rewards
+                    if (interactable is InteractableTree tree)
+                    {
+                        mg.NormalHitWoodType = tree.treeType;        // normal hit
+                        mg.PerfectHitWoodType = tree.treeType + "Plank"; // perfect hit
+                    }
+                }
 
+                minigame1.SetActive(true); // start minigame
             }
-            
         }
-        
-        //Checks if the player is in range of interactable object, and runs the interact script if the player presses the interact key.
     }
 
     private void OnTriggerEnter(Collider other)
@@ -50,12 +50,14 @@ public class PlayerInteraction : MonoBehaviour
             interactable = other.GetComponent<IInteractable>();
             playerInRange = true;
         }
-        //Checks if the nearby object is interactible, and gets the interactable component if it is.
     }
+
     private void OnTriggerExit(Collider other)
     {
-
-        playerInRange = false;
-
+        if (other.CompareTag("interactable"))
+        {
+            interactable = null;
+            playerInRange = false;
+        }
     }
 }

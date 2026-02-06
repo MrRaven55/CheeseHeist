@@ -1,37 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class InteractableTree : MonoBehaviour, IInteractable
 {
-    public string treeType;
-    WoodInventory woodInventory;
-    PlayerMovement players;
-    public Minigame1 score;
-    private IInteractable interactable;
+    [Header("Tree Settings")]
+    [Tooltip("Type of tree: Oak, Birch, Pine")]
+    public string treeType = "Pine";
 
+    private WoodInventory woodInventory;
 
-    // Start is called before the first frame update
     void Start()
     {
         woodInventory = FindObjectOfType<WoodInventory>();
-        players = GetComponent<PlayerMovement>();
+        if (woodInventory == null)
+            Debug.LogWarning("WoodInventory not found in scene!");
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-      
-        if (score.score >= 40)
-        {
-
-            Interact(gameObject);
-         
-
-        }
-    }
+    // Call this method when player interacts with the tree
     public void Interact(GameObject player)
     {
+        if (woodInventory == null || player == null) return;
+
+        Debug.Log($"Player {player.name} chopped {treeType} tree!");
         woodInventory.AddWood(treeType, player);
     }
 }
