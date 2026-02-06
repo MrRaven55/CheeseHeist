@@ -1,179 +1,68 @@
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
 public class Minigame2 : MonoBehaviour
 {
     [Header("Lanes")]
     [SerializeField] private int laneCount = 8;
-    [SerializeField] private RectTransform laneVisualPrefab;      
 
     [Header("Player")]
     [SerializeField] private RectTransform gear;
+    [SerializeField] private GameObject playerObject;
     [SerializeField] private int startLane = 3;
 
-    private int currentLane;
-
     [Header("Fruit")]
-    [SerializeField] private RectTransform fruitPrefab;          
-    [SerializeField] private RectTransform fruitParent;          
+    [SerializeField] private RectTransform fruitPrefab;
+    [SerializeField] private RectTransform fruitParent;
 
-    private int lastSpawnLane;
+    [Header("Inventory")]
+    [SerializeField] private WoodInventory woodInventory;
+    [SerializeField] private string plankType = "OakPlank"; // crafting output
+
+    [Header("Costs")]
+    [SerializeField] private int logsRequired = 3;
 
     [Header("Speed")]
-    [SerializeField] private float baseFallSpeed = 300f;
-    [SerializeField] private float speedMultiplier = 1f;
+    [SerializeField] private float fallSpeed = 300f;
 
-    [Header("Spawn Rate")]
-    [SerializeField] private float baseSpawnInterval = 1f;
-    [SerializeField] private float spawnRateMultiplier = 1f;
-    [SerializeField] private float minimumSpawnInterval = 0.25f;
-
-    [Header("Fruit Lifetime")]
-    [SerializeField] private float fruitLifetime = 10f; 
-    [Header("UI / Collection")]
-    [SerializeField] private float collectPadding = 10f;
+    [Header("Spawn")]
+    [SerializeField] private float spawnInterval = 1f;
 
     [Header("Win Condition")]
-    [Tooltip("Score required to end the minigame")]
-    [SerializeField] private int targetScore = 30;
-    [Tooltip("Optional UnityEvent invoked when targetScore is reached")]
+    [SerializeField] private int targetPlanks = 5;
     public UnityEvent onWin;
 
-    private RectTransform canvasRect;
     private RectTransform playAreaRect;
+    private int currentLane;
+    private int craftedPlanks;
     private float spawnTimer;
-    private int score;
-
-    // dynamic spacing
-    private float laneSpacingDynamic;
-    private Vector2 lastParentSize;
-    private RectTransform[] laneVisuals;
-
-    float CurrentFallSpeed => baseFallSpeed * speedMultiplier;
-    float CurrentSpawnInterval => Mathf.Max(minimumSpawnInterval, baseSpawnInterval / spawnRateMultiplier);
+    private int lastSpawnLane;
 
     void OnEnable()
     {
-        canvasRect = GetComponentInParent<Canvas>().GetComponent<RectTransform>();
-        playAreaRect = GetComponent<RectTransform>(); // <- self-contained
-
-        currentLane = Mathf.Clamp(startLane, 0, Mathf.Max(0, laneCount - 1));
-        lastSpawnLane = currentLane;
-
-        spawnRateMultiplier = Mathf.Max(0.0001f, spawnRateMultiplier);
-        speedMultiplier = Mathf.Max(0.0001f, speedMultiplier);
-        spawnTimer = CurrentSpawnInterval;
-
-        score = 0;
-
-        ComputeLayout();
-        CreateLaneVisuals();
+        playAreaRect = GetComponent<RectTransform>();
+        currentLane = startLane;
+        spawnTimer = spawnInterval;
+        craftedPlanks = 0;
         UpdateGearPosition();
     }
 
     void Update()
     {
-        Vector2 curSize = playAreaRect.rect.size;
-        if (curSize != lastParentSize)
-            UpdateLayout();
-
         HandleInput();
         HandleSpawning();
         MoveAndCheckFruits();
     }
 
-    void OnDisable()
-    {
-        foreach (Transform child in fruitParent)
-            Destroy(child.gameObject);
-
-        if (laneVisuals != null)
-        {
-            foreach (var lv in laneVisuals)
-                if (lv != null) Destroy(lv.gameObject);
-        }
-    }
-
-    void ComputeLayout()
-    {
-        lastParentSize = playAreaRect.rect.size;
-        laneSpacingDynamic = (laneCount > 1) ? playAreaRect.rect.width / (laneCount - 1) : 0f;
-    }
-
-    void CreateLaneVisuals()
-    {
-        if (laneVisuals != null)
-        {
-            foreach (var l in laneVisuals) if (l != null) Destroy(l.gameObject);
-        }
-
-        laneVisuals = new RectTransform[laneCount];
-
-        for (int i = 0; i < laneCount; i++)
-        {
-            RectTransform lane = Instantiate(laneVisualPrefab, playAreaRect);
-            lane.gameObject.SetActive(true);
-
-            lane.anchorMin = lane.anchorMax = new Vector2(0.5f, 0.5f);
-            lane.pivot = new Vector2(0.5f, 0.5f);
-
-            Vector2 pos = lane.anchoredPosition;
-            pos.x = GetLaneX(i);
-            pos.y = 0f;
-            lane.anchoredPosition = pos;
-
-            lane.sizeDelta = new Vector2(lane.sizeDelta.x, playAreaRect.rect.height);
-            var img = lane.GetComponent<Image>();
-            if (img != null) img.color = new Color(1f, 1f, 1f, 0.12f);
-
-            laneVisuals[i] = lane;
-        }
-    }
-
-    void UpdateLayout()
-    {
-        ComputeLayout();
-
-        if (laneVisuals != null)
-        {
-            for (int i = 0; i < laneVisuals.Length; i++)
-            {
-                if (laneVisuals[i] == null) continue;
-                Vector2 pos = laneVisuals[i].anchoredPosition;
-                pos.x = GetLaneX(i);
-                laneVisuals[i].anchoredPosition = pos;
-                laneVisuals[i].sizeDelta = new Vector2(laneVisuals[i].sizeDelta.x, playAreaRect.rect.height);
-            }
-        }
-
-        UpdateGearPosition();
-
-        for (int i = 0; i < fruitParent.childCount; i++)
-        {
-            RectTransform child = fruitParent.GetChild(i) as RectTransform;
-            if (child == null) continue;
-            var fb = child.GetComponent<FruitBehaviour>();
-            if (fb != null)
-            {
-                Vector2 pos = child.anchoredPosition;
-                pos.x = GetLaneX(fb.laneIndex);
-                child.anchoredPosition = pos;
-            }
-        }
-    }
-
     void HandleInput()
     {
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-            MoveLane(-1);
-        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-            MoveLane(1);
+        if (Input.GetKeyDown(KeyCode.A)) MoveLane(-1);
+        if (Input.GetKeyDown(KeyCode.D)) MoveLane(1);
     }
 
-    void MoveLane(int direction)
+    void MoveLane(int dir)
     {
-        currentLane = Mathf.Clamp(currentLane + direction, 0, laneCount - 1);
+        currentLane = Mathf.Clamp(currentLane + dir, 0, laneCount - 1);
         UpdateGearPosition();
     }
 
@@ -190,35 +79,22 @@ public class Minigame2 : MonoBehaviour
         if (spawnTimer <= 0f)
         {
             SpawnFruit();
-            spawnTimer = CurrentSpawnInterval;
+            spawnTimer = spawnInterval;
         }
     }
 
     void SpawnFruit()
     {
-        int lane = GetNextLane();
+        int lane = Mathf.Clamp(lastSpawnLane + Random.Range(-1, 2), 0, laneCount - 1);
+        lastSpawnLane = lane;
 
         RectTransform fruit = Instantiate(fruitPrefab, fruitParent);
-        fruit.gameObject.SetActive(true);
+        fruit.anchoredPosition = new Vector2(
+            GetLaneX(lane),
+            playAreaRect.rect.height * 0.5f + 100f
+        );
 
-        Vector2 pos = fruit.anchoredPosition;
-        pos.x = GetLaneX(lane);
-        pos.y = playAreaRect.rect.height * 0.5f + 100f;
-        fruit.anchoredPosition = pos;
-
-        var fb = fruit.GetComponent<FruitBehaviour>();
-        if (fb != null)
-        {
-            fb.Init(fruitLifetime, lane);
-        }
-
-        lastSpawnLane = lane;
-    }
-
-    int GetNextLane()
-    {
-        int offset = Random.Range(-1, 2);
-        return Mathf.Clamp(lastSpawnLane + offset, 0, laneCount - 1);
+        fruit.GetComponent<FruitBehaviour>().Init(10f, lane);
     }
 
     void MoveAndCheckFruits()
@@ -226,29 +102,62 @@ public class Minigame2 : MonoBehaviour
         for (int i = fruitParent.childCount - 1; i >= 0; i--)
         {
             RectTransform fruit = fruitParent.GetChild(i) as RectTransform;
-            if (fruit == null) continue;
-
-            fruit.anchoredPosition += Vector2.down * CurrentFallSpeed * Time.deltaTime;
+            fruit.anchoredPosition += Vector2.down * fallSpeed * Time.deltaTime;
 
             if (IsOverlapping(fruit, gear))
             {
-                var fb = fruit.GetComponent<FruitBehaviour>();
-                if (fb != null) CollectFruit(fb);
+                TryCraftPlank(fruit.GetComponent<FruitBehaviour>());
             }
         }
     }
 
+    void TryCraftPlank(FruitBehaviour fb)
+    {
+        if (fb.collected) return;
+
+        // ❌ Not enough logs → fail silently or add feedback
+        if (!HasRequiredLogs())
+        {
+            fb.MarkCollected();
+            return;
+        }
+
+        // ✅ Consume logs
+        ConsumeLogs();
+
+        // ✅ Add plank
+        woodInventory.AddWood(plankType, playerObject);
+        craftedPlanks++;
+
+        fb.MarkCollected();
+
+        if (craftedPlanks >= targetPlanks)
+        {
+            onWin?.Invoke();
+            gameObject.SetActive(false);
+        }
+    }
+
+    bool HasRequiredLogs()
+    {
+        if (plankType == "OakPlank") return woodInventory.oak >= logsRequired;
+        if (plankType == "PinePlank") return woodInventory.pine >= logsRequired;
+        if (plankType == "BirchPlank") return woodInventory.birch >= logsRequired;
+        return false;
+    }
+
+    void ConsumeLogs()
+    {
+        if (plankType == "OakPlank") woodInventory.oak -= logsRequired;
+        if (plankType == "PinePlank") woodInventory.pine -= logsRequired;
+        if (plankType == "BirchPlank") woodInventory.birch -= logsRequired;
+    }
+
     bool IsOverlapping(RectTransform a, RectTransform b)
     {
-        Rect rectA = GetWorldRect(a);
-        Rect rectB = GetWorldRect(b);
-
-        rectA.xMin += collectPadding;
-        rectA.xMax -= collectPadding;
-        rectA.yMin += collectPadding;
-        rectA.yMax -= collectPadding;
-
-        return rectA.Overlaps(rectB);
+        Rect ra = GetWorldRect(a);
+        Rect rb = GetWorldRect(b);
+        return ra.Overlaps(rb);
     }
 
     Rect GetWorldRect(RectTransform rt)
@@ -258,30 +167,9 @@ public class Minigame2 : MonoBehaviour
         return new Rect(corners[0], corners[2] - corners[0]);
     }
 
-    void CollectFruit(FruitBehaviour fb)
-    {
-        if (fb == null || fb.collected) return;
-        fb.MarkCollected();
-        score++;
-        Debug.Log("Collected! Score: " + score);
-
-        if (score >= targetScore)
-        {
-            EndMinigame();
-        }
-    }
-
-    float GetLaneX(int laneIndex)
+    float GetLaneX(int lane)
     {
         float width = playAreaRect.rect.width;
-        float left = -width * 0.5f;
-        return (laneCount > 1) ? left + laneIndex * laneSpacingDynamic : left;
-    }
-
-    public void EndMinigame()
-    {
-        Debug.Log($"Target score {targetScore} reached. Ending minigame.");
-        onWin?.Invoke();
-        gameObject.SetActive(false);
+        return -width / 2f + (width / (laneCount - 1)) * lane;
     }
 }
