@@ -12,7 +12,8 @@ public class PlayerInteraction : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private KeyCode interactKey = KeyCode.E;
-    [SerializeField] private GameObject minigame1;                     // minigame prefab or panel (set in inspector)
+    [SerializeField] private GameObject minigame1;  // minigame prefab or panel (set in inspector)
+    [SerializeField] private GameObject minigame2;
     [SerializeField] private WoodInventory woodInventory;               // optional, auto-found if null
 
     private void Awake()

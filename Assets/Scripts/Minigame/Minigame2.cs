@@ -37,6 +37,11 @@ public class Minigame2 : MonoBehaviour
     [SerializeField] private int targetPlanks = 5;
     [SerializeField] private UnityEvent onWin;
 
+    [Header("Keycodes")]
+    [SerializeField] private KeyCode leftKey = KeyCode.A;
+    [SerializeField] private KeyCode rightKey = KeyCode.D;
+
+
     private RectTransform playAreaRect;
     private int currentLane;
     private int craftedPlanks;
@@ -61,8 +66,8 @@ public class Minigame2 : MonoBehaviour
 
     private void HandleInput()
     {
-        if (Input.GetKeyDown(KeyCode.A)) MoveLane(-1);
-        if (Input.GetKeyDown(KeyCode.D)) MoveLane(1);
+        if (Input.GetKeyDown(leftKey)) MoveLane(-1);
+        if (Input.GetKeyDown(rightKey)) MoveLane(1);
     }
 
     private void MoveLane(int dir)
