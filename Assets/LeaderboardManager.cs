@@ -15,7 +15,7 @@ public class LeaderboardManager : MonoBehaviour
     [SerializeField] private float updateInterval = 5f;
     
     [Header("UI References")]
-    [SerializeField] private TMP_InputField nameInputField;
+    [SerializeField] private TMP_InputField nameInputField; //change around
     [SerializeField] private TextMeshProUGUI timerText;
     
     private bool isGameRunning = false;
