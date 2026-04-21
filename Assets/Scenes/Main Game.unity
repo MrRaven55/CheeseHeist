@@ -1545,7 +1545,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5763463198285930631, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: fallSpeed
@@ -2003,6 +2003,30 @@ PrefabInstance:
     - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: laneCount
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: startLane
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: playerObject
+      value: 
+      objectReference: {fileID: 1158406591}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: spawnInterval
+      value: 0.84
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: woodInventory
+      value: 
+      objectReference: {fileID: 546114234}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: onWin.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: onWin.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
