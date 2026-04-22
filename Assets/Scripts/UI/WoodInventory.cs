@@ -17,6 +17,7 @@ public class WoodInventory : MonoBehaviour
     [SerializeField] private int oakPlanks;
     [SerializeField] private int birchPlanks;
     [SerializeField] private int pinePlanks;
+    [SerializeField] private int bridgePieces;
 
     [Header("Tools")]
     [SerializeField] private int axeTier = 1; // amount gained per chop = axeTier
@@ -50,12 +51,9 @@ public class WoodInventory : MonoBehaviour
     public int OakPlanks => oakPlanks;
     public int BirchPlanks => birchPlanks;
     public int PinePlanks => pinePlanks;
+    public int Planks => oakPlanks + birchPlanks + pinePlanks;
+    public int BridgePieces => bridgePieces;
 
-    public int AxeTier
-    {
-        get => axeTier;
-        set => axeTier = Mathf.Max(1, value);
-    }
 
     private void Update()
     {
@@ -88,30 +86,19 @@ public class WoodInventory : MonoBehaviour
                 break;
 
             case "OakPlank":
-                if (oak >= 3)
-                {
-                    oak -= 3;
-                    oakPlanks++;
-                    activeLogMove = InstantiateIfAssigned(oakPlank);
-                }
+                TryCraftPlankFromWoodType("Oak", 2);
                 break;
 
             case "BirchPlank":
-                if (birch >= 3)
-                {
-                    birch -= 3;
-                    birchPlanks++;
-                    activeLogMove = InstantiateIfAssigned(birchPlank);
-                }
+                TryCraftPlankFromWoodType("Birch", 2);
                 break;
 
             case "PinePlank":
-                if (pine >= 3)
-                {
-                    pine -= 3;
-                    pinePlanks++;
-                    activeLogMove = InstantiateIfAssigned(pinePlank);
-                }
+                TryCraftPlankFromWoodType("Pine", 2);
+                break;
+
+            case "Plank":
+                TryCraftPlankFromAnyWood(2);
                 break;
 
             default:
@@ -125,6 +112,94 @@ public class WoodInventory : MonoBehaviour
             Vector2 startPos = GetPlayerUIPosition(player);
             activeLogMove.StartMove(startPos);
         }
+    }
+
+    public bool TryCraftPlankFromAnyWood(int logsRequiredPerPlank = 2)
+    {
+        activeLogMove = null;
+
+        int totalRawWood = oak + birch + pine;
+        if (totalRawWood < logsRequiredPerPlank) return false;
+
+        int remaining = logsRequiredPerPlank;
+
+        int takeOak = Mathf.Min(oak, remaining);
+        oak -= takeOak;
+        remaining -= takeOak;
+
+        int takeBirch = Mathf.Min(birch, remaining);
+        birch -= takeBirch;
+        remaining -= takeBirch;
+
+        int takePine = Mathf.Min(pine, remaining);
+        pine -= takePine;
+
+        // Keep existing UI references compatible by placing crafted pooled plank into oakPlanks.
+        oakPlanks++;
+        activeLogMove = InstantiateIfAssigned(oakPlank);
+
+        return true;
+    }
+
+    public bool TryCraftPlankFromWoodType(string woodType, int logsRequiredPerPlank = 2)
+    {
+        activeLogMove = null;
+
+        switch (woodType)
+        {
+            case "Oak":
+                if (oak < logsRequiredPerPlank) return false;
+                oak -= logsRequiredPerPlank;
+                oakPlanks++;
+                activeLogMove = InstantiateIfAssigned(oakPlank);
+                return true;
+
+            case "Birch":
+                if (birch < logsRequiredPerPlank) return false;
+                birch -= logsRequiredPerPlank;
+                birchPlanks++;
+                activeLogMove = InstantiateIfAssigned(birchPlank);
+                return true;
+
+            case "Pine":
+                if (pine < logsRequiredPerPlank) return false;
+                pine -= logsRequiredPerPlank;
+                pinePlanks++;
+                activeLogMove = InstantiateIfAssigned(pinePlank);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public bool TryCraftBridgePiece(int planksRequired = 2)
+    {
+        if (!TryConsumePlanks(planksRequired)) return false;
+
+        bridgePieces++;
+        return true;
+    }
+
+    public bool TryConsumePlanks(int amount)
+    {
+        if (amount <= 0) return true;
+        if (Planks < amount) return false;
+
+        int remaining = amount;
+
+        int takeOak = Mathf.Min(oakPlanks, remaining);
+        oakPlanks -= takeOak;
+        remaining -= takeOak;
+
+        int takeBirch = Mathf.Min(birchPlanks, remaining);
+        birchPlanks -= takeBirch;
+        remaining -= takeBirch;
+
+        int takePine = Mathf.Min(pinePlanks, remaining);
+        pinePlanks -= takePine;
+
+        return true;
     }
 
     // Instantiate helper that ensures canvas and prefab exist
@@ -160,6 +235,6 @@ public class WoodInventory : MonoBehaviour
 
         if (oakPlanksUI) oakPlanksUI.text = $"Oak Planks: {oakPlanks}";
         if (birchPlanksUI) birchPlanksUI.text = $"Birch Planks: {birchPlanks}";
-        if (pinePlanksUI) pinePlanksUI.text = $"Pine Planks: {pinePlanks}";
+        if (pinePlanksUI) pinePlanksUI.text = $"Pine Planks: {pinePlanks} | Total: {Planks} | Bridge: {bridgePieces}";
     }
 }

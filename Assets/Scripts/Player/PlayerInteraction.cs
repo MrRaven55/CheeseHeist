@@ -18,6 +18,8 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private WoodInventory woodInventory;               // optional, auto-found if null
     [SerializeField] private int currentPlayerID;
 
+    public GameObject Minigame2Object => minigame2;
+
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
@@ -30,7 +32,16 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (playerInRange && Input.GetKeyDown(interactKey))
         {
-            if (interactable == null || minigame1 == null) return;
+            if (interactable == null) return;
+
+            // Minigame triggers use the same IInteractable flow as trees.
+            if (interactable is Minigame2Trigger || interactable is Minigame3Trigger)
+            {
+                interactable.Interact(gameObject);
+                return;
+            }
+
+            if (minigame1 == null) return;
 
             // Pass references into the minigame before starting it
             Minigame1 mg = minigame1.GetComponent<Minigame1>();
@@ -41,6 +52,7 @@ public class PlayerInteraction : MonoBehaviour
                 OnInteract?.Invoke(currentPlayerID);
                 Debug.Log("Current ID interacted is" + currentPlayerID);
                 }
+                mg.PlayerId = playerMovement.PlayerID;
                 mg.PlayerRef = gameObject;
                 mg.WoodInventory = woodInventory;
 
@@ -50,6 +62,11 @@ public class PlayerInteraction : MonoBehaviour
                     mg.NormalHitWoodType = tree.TreeTypeName;
                     mg.PerfectHitWoodType = tree.TreeTypeName + "Plank";
                 }
+            }
+
+            if (playerMovement != null)
+            {
+                PlayerMovement.SetMovementEnabledForPlayer(playerMovement.PlayerID, false);
             }
 
             minigame1.SetActive(true);

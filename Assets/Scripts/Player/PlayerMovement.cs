@@ -22,6 +22,32 @@ public class PlayerMovement : MonoBehaviour
         get => speed;
         set => speed = Mathf.Max(0f, value);
     }
+    public void SetMovementEnabled(bool enabled)
+    {
+        canmove = enabled;
+    }
+
+    public static void SetAllMovementEnabled(bool enabled)
+    {
+        PlayerMovement[] players = FindObjectsOfType<PlayerMovement>();
+        foreach (PlayerMovement player in players)
+        {
+            player.SetMovementEnabled(enabled);
+        }
+    }
+
+    public static void SetMovementEnabledForPlayer(int targetPlayerID, bool enabled)
+    {
+        PlayerMovement[] players = FindObjectsOfType<PlayerMovement>();
+        foreach (PlayerMovement player in players)
+        {
+            if (player.PlayerID == targetPlayerID)
+            {
+                player.SetMovementEnabled(enabled);
+                return;
+            }
+        }
+    }
 
     private void Awake()
     {
