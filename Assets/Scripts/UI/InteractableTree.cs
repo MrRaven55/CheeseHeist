@@ -38,4 +38,8 @@ public class InteractableTree : MonoBehaviour, IInteractable
         Debug.Log($"Player {player.name} chopped {TreeTypeName} tree!", this);
         woodInventory.AddWood(TreeTypeName, player);
     }
+
+    public void Highlight()
+    {
+    }
 }

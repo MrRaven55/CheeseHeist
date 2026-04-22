@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 6458815486913137859}
   m_Layer: 0
   m_Name: S_Birch_Tree (1)
-  m_TagString: Untagged
+  m_TagString: Highlight
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -219,6 +219,10 @@ PrefabInstance:
     - target: {fileID: 6336544836440570635, guid: 1ea1fa83e91e7734f8a47ec942bc4b88, type: 3}
       propertyPath: m_Name
       value: BirchTree 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6415021840879177831, guid: 1ea1fa83e91e7734f8a47ec942bc4b88, type: 3}
+      propertyPath: treeType
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
