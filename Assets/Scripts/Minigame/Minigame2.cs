@@ -15,6 +15,7 @@ public class Minigame2 : MonoBehaviour
     [SerializeField] private RectTransform gear;
     [SerializeField] private GameObject playerObject;
     [SerializeField] private int startLane = 3;
+    [SerializeField] private int playerId = -1;
 
     [Header("Fruit")]
     [SerializeField] private RectTransform fruitPrefab;
@@ -22,10 +23,9 @@ public class Minigame2 : MonoBehaviour
 
     [Header("Inventory")]
     [SerializeField] private WoodInventory woodInventory;
-    [SerializeField] private string plankType = "OakPlank"; // crafting output
 
     [Header("Costs")]
-    [SerializeField] private int logsRequired = 3;
+    [SerializeField] private int logsRequired = 2;
 
     [Header("Speed")]
     [SerializeField] private float fallSpeed = 300f;
@@ -36,6 +36,7 @@ public class Minigame2 : MonoBehaviour
     [Header("Win Condition")]
     [SerializeField] private int targetPlanks = 5;
     [SerializeField] private UnityEvent onWin;
+    [SerializeField] private UnityEvent onNotEnoughMaterials;
 
     [Header("Keycodes")]
     [SerializeField] private KeyCode leftKey = KeyCode.A;
@@ -50,11 +51,32 @@ public class Minigame2 : MonoBehaviour
 
     private void OnEnable()
     {
+        SetControlledPlayerMovement(false);
+
+        if (woodInventory == null)
+            woodInventory = FindObjectOfType<WoodInventory>();
+
         playAreaRect = GetComponent<RectTransform>();
         currentLane = Mathf.Clamp(startLane, 0, Mathf.Max(0, laneCount - 1));
         spawnTimer = spawnInterval;
         craftedPlanks = 0;
         UpdateGearPosition();
+
+        if (!HasEnoughRawWoodForPlank())
+        {
+            EndMinigameNotEnoughMaterials();
+        }
+    }
+
+    public void ConfigureSession(GameObject player, int controllingPlayerId, WoodInventory inventory)
+    {
+        if (player != null)
+            playerObject = player;
+
+        playerId = controllingPlayerId;
+
+        if (inventory != null)
+            woodInventory = inventory;
     }
 
     private void Update()
@@ -138,99 +160,53 @@ public class Minigame2 : MonoBehaviour
         if (fb == null || fb.Collected) return;
         if (woodInventory == null)
         {
-            // If no inventory assigned, mark collected to prevent repeated triggers
-            fb.MarkCollected();
+            EndMinigameNotEnoughMaterials();
             return;
         }
 
-        // Check if we have enough logs for desired plank type
-        if (!HasRequiredLogs())
+        // 2 logs of any type -> 1 plank
+        if (!woodInventory.TryCraftPlankFromAnyWood(logsRequired))
         {
-            // Not enough logs: consume the fruit but give no plank (could add feedback)
-            fb.MarkCollected();
+            EndMinigameNotEnoughMaterials();
             return;
         }
 
-        // Consume logs and add plank
-        ConsumeLogs();
-        woodInventory.AddWood(plankType, playerObject);
         craftedPlanks++;
         fb.MarkCollected();
 
         if (craftedPlanks >= targetPlanks)
         {
+            SetControlledPlayerMovement(true);
             onWin?.Invoke();
             gameObject.SetActive(false);
         }
     }
 
-    // Use WoodInventory properties rather than directly accessing fields
-    private bool HasRequiredLogs()
+    private void OnDisable()
+    {
+        SetControlledPlayerMovement(true);
+    }
+
+    private void SetControlledPlayerMovement(bool enabled)
+    {
+        if (playerId >= 0)
+        {
+            PlayerMovement.SetMovementEnabledForPlayer(playerId, enabled);
+        }
+    }
+
+    private bool HasEnoughRawWoodForPlank()
     {
         if (woodInventory == null) return false;
-
-        switch (plankType)
-        {
-            case "OakPlank": return woodInventory.Oak >= logsRequired;
-            case "PinePlank": return woodInventory.Pine >= logsRequired;
-            case "BirchPlank": return woodInventory.Birch >= logsRequired;
-            default: return false;
-        }
+        int totalRawWood = woodInventory.Oak + woodInventory.Birch + woodInventory.Pine;
+        return totalRawWood >= logsRequired;
     }
 
-    private void ConsumeLogs()
+    private void EndMinigameNotEnoughMaterials()
     {
-        if (woodInventory == null) return;
-
-        switch (plankType)
-        {
-            case "OakPlank":
-                // Note: WoodInventory doesn't provide write access via properties,
-                // so we use AddWood to modify (it applies internal logic).
-                // But to consume raw logs we need a safe method; for now we
-                // reflect the previous behavior by adding a private helper or
-                // directly using internal fields. To keep encapsulation we could
-                // add RemoveLogs method to WoodInventory — quick in-place approach:
-                ModifyRawLogs("Oak", -logsRequired);
-                break;
-
-            case "PinePlank":
-                ModifyRawLogs("Pine", -logsRequired);
-                break;
-
-            case "BirchPlank":
-                ModifyRawLogs("Birch", -logsRequired);
-                break;
-        }
-    }
-
-    /// <summary>
-    /// Helper to mutate raw log counts using AddWood style calls.
-    /// Because AddWood doesn't allow negative values, this adjusts internal
-    /// counts via a temporary approach: call a dedicated API would be better.
-    /// To avoid breaking encapsulation, this method directly modifies fields via reflection fallback.
-    /// (Better: add public RemoveLogs/ConsumeRawLogs to WoodInventory — I can add that if you want.)
-    /// </summary>
-    private void ModifyRawLogs(string type, int delta)
-    {
-        // Try to find appropriate field via property methods if available.
-        // For now, use a minimal reflection fallback to change private fields safely.
-        // Reflection is slower but acceptable for low-frequency operations in a minigame.
-        var wi = woodInventory;
-        if (wi == null) return;
-
-        System.Type t = wi.GetType();
-        string fieldName = type.ToLower(); // oak, birch, pine
-        var fi = t.GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-        if (fi != null && fi.FieldType == typeof(int))
-        {
-            int current = (int)fi.GetValue(wi);
-            fi.SetValue(wi, Mathf.Max(0, current + delta));
-        }
-        else
-        {
-            Debug.LogWarning("Minigame2: Unable to modify raw logs. Consider adding a public API to WoodInventory.", this);
-        }
+        SetControlledPlayerMovement(true);
+        onNotEnoughMaterials?.Invoke();
+        gameObject.SetActive(false);
     }
 
     private bool IsOverlapping(RectTransform a, RectTransform b)

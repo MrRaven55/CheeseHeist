@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 /// <summary>
 /// Two-player nail-and-hammer minigame. Player 1 places nails, Player 2 hammers them.
@@ -12,6 +13,8 @@ public class Minigame3 : MonoBehaviour
     [SerializeField] private Camera camPlayer1;
     [SerializeField] private Camera camPlayer2;
     [SerializeField] private Camera camMinigame;
+    [SerializeField] private CanvasGroup cameraFadeOverlay;
+    [SerializeField] private float cameraTransitionDuration = 0.25f;
 
     [Header("Plank Settings")]
     [Tooltip("Parent RectTransform where planks will spawn")]
@@ -49,6 +52,13 @@ public class Minigame3 : MonoBehaviour
     [SerializeField] private string placeKeyP1 = "Fire1";
     [SerializeField] private string hammerKeyP2 = "Fire2";
 
+    [Header("Bridge Progress")]
+    [SerializeField] private WoodInventory woodInventory;
+    [SerializeField] private int planksPerBridgePiece = 2;
+    [SerializeField] private int bridgePiecesToWin = 10;
+    [SerializeField] private UnityEvent onBridgePieceBuilt;
+    [SerializeField] private UnityEvent onBridgeComplete;
+
     // runtime state
     private int nailsPlaced;
     private int nailsHammered;
@@ -59,15 +69,28 @@ public class Minigame3 : MonoBehaviour
     private RectTransform currentPlank;
     private bool plankReady;
 
+    public bool IsActive => minigameActive;
+
     // spawned nails + flags
     private List<RectTransform> spawnedNails = new List<RectTransform>();
     private List<bool> nailIsHammered = new List<bool>();
 
     private float currentTime;
+    private bool startTransitionRunning;
 
     private void Start()
     {
         if (camMinigame) camMinigame.gameObject.SetActive(false);
+
+        if (cameraFadeOverlay != null)
+        {
+            cameraFadeOverlay.alpha = 0f;
+            cameraFadeOverlay.interactable = false;
+            cameraFadeOverlay.blocksRaycasts = false;
+        }
+
+        if (woodInventory == null)
+            woodInventory = FindObjectOfType<WoodInventory>();
 
         if (plankPrefab == null) Debug.LogWarning("Minigame3: plankPrefab is not assigned.");
         if (plankParent == null) Debug.LogWarning("Minigame3: plankParent is not assigned.");
@@ -88,14 +111,51 @@ public class Minigame3 : MonoBehaviour
     /// </summary>
     public void StartMinigame()
     {
-        minigameActive = true;
+        if (startTransitionRunning || minigameActive) return;
 
-        if (camPlayer1) camPlayer1.gameObject.SetActive(false);
-        if (camPlayer2) camPlayer2.gameObject.SetActive(false);
-        if (camMinigame) camMinigame.gameObject.SetActive(true);
+        StartCoroutine(StartMinigameRoutine());
+    }
+
+    private IEnumerator StartMinigameRoutine()
+    {
+        startTransitionRunning = true;
+        minigameActive = true;
+        PlayerMovement.SetAllMovementEnabled(false);
+
+        yield return FadeTo(1f);
+        SetCameraMode(true);
+        yield return FadeTo(0f);
 
         round = 0;
         StartNextRound();
+        startTransitionRunning = false;
+    }
+
+    private void SetCameraMode(bool minigameMode)
+    {
+        if (camPlayer1) camPlayer1.gameObject.SetActive(!minigameMode);
+        if (camPlayer2) camPlayer2.gameObject.SetActive(!minigameMode);
+        if (camMinigame) camMinigame.gameObject.SetActive(minigameMode);
+    }
+
+    private IEnumerator FadeTo(float targetAlpha)
+    {
+        if (cameraFadeOverlay == null)
+            yield break;
+
+        float duration = Mathf.Max(0.01f, cameraTransitionDuration);
+        float startAlpha = cameraFadeOverlay.alpha;
+        float t = 0f;
+
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime;
+            float p = Mathf.Clamp01(t / duration);
+            cameraFadeOverlay.alpha = Mathf.Lerp(startAlpha, targetAlpha, p);
+            yield return null;
+        }
+
+        cameraFadeOverlay.alpha = targetAlpha;
     }
 
     private void StartNextRound()
@@ -359,9 +419,64 @@ public class Minigame3 : MonoBehaviour
         // round finished
         if (nailsHammered >= 2)
         {
+            if (!BuildBridgePiece())
+            {
+                FailMinigame();
+                yield break;
+            }
+
+            if (woodInventory != null && woodInventory.BridgePieces >= bridgePiecesToWin)
+            {
+                CompleteBridgeMinigame();
+                yield break;
+            }
+
             yield return new WaitForSeconds(0.12f);
             StartNextRound();
         }
+    }
+
+    private bool BuildBridgePiece()
+    {
+        if (woodInventory == null)
+        {
+            Debug.LogWarning("Minigame3: Missing WoodInventory reference.");
+            return false;
+        }
+
+        bool crafted = woodInventory.TryCraftBridgePiece(planksPerBridgePiece);
+        if (crafted)
+        {
+            onBridgePieceBuilt?.Invoke();
+        }
+        else
+        {
+            Debug.Log("Minigame3: Need more planks to build a bridge piece.");
+        }
+
+        return crafted;
+    }
+
+    private void CompleteBridgeMinigame()
+    {
+        Debug.Log("Minigame3: Bridge completed. You win!");
+        minigameActive = false;
+        canPlace = false;
+        canHammer = false;
+        PlayerMovement.SetAllMovementEnabled(true);
+
+        StopAllCoroutines();
+        SetCameraMode(false);
+
+        CleanupNails();
+
+        if (currentPlank != null)
+        {
+            Destroy(currentPlank.gameObject);
+            currentPlank = null;
+        }
+
+        onBridgeComplete?.Invoke();
     }
 
     private void HandleTimer()
@@ -379,12 +494,10 @@ public class Minigame3 : MonoBehaviour
         minigameActive = false;
         canPlace = false;
         canHammer = false;
+        PlayerMovement.SetAllMovementEnabled(true);
 
         StopAllCoroutines();
-
-        if (camMinigame) camMinigame.gameObject.SetActive(false);
-        if (camPlayer1) camPlayer1.gameObject.SetActive(true);
-        if (camPlayer2) camPlayer2.gameObject.SetActive(true);
+        SetCameraMode(false);
 
         CleanupNails();
 
@@ -393,6 +506,11 @@ public class Minigame3 : MonoBehaviour
             Destroy(currentPlank.gameObject);
             currentPlank = null;
         }
+    }
+
+    private void OnDisable()
+    {
+        PlayerMovement.SetAllMovementEnabled(true);
     }
 
     private void CleanupNails()

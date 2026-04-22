@@ -35,12 +35,14 @@ public class Minigame1 : MonoBehaviour
     [SerializeField] private GameObject _playerRef;
     [SerializeField] private string _normalHitWoodType = "Oak";
     [SerializeField] private string _perfectHitWoodType = "OakPlank";
+    [SerializeField] private int _playerId = -1;
 
     // expose via properties so PlayerInteraction can set them safely
     public WoodInventory WoodInventory { get => _woodInventory; set => _woodInventory = value; }
     public GameObject PlayerRef { get => _playerRef; set => _playerRef = value; }
     public string NormalHitWoodType { get => _normalHitWoodType; set => _normalHitWoodType = value; }
     public string PerfectHitWoodType { get => _perfectHitWoodType; set => _perfectHitWoodType = value; }
+    public int PlayerId { get => _playerId; set => _playerId = value; }
 
     [Header("Runtime")]
     [SerializeField] private int score;
@@ -57,6 +59,8 @@ public class Minigame1 : MonoBehaviour
 
     private void OnEnable()
     {
+        SetControlledPlayerMovement(false);
+
         // initialize runtime state
         timer = gameDuration;
         if (movingPiece != null)
@@ -179,14 +183,24 @@ public class Minigame1 : MonoBehaviour
     private void EndMinigame()
     {
         Debug.Log("Minigame1: ended");
+        SetControlledPlayerMovement(true);
         onEnd?.Invoke();
         gameObject.SetActive(false);
     }
 
     private void OnDisable()
     {
+        SetControlledPlayerMovement(true);
         ResetGame();
         Debug.Log("Minigame1: reset & disabled");
+    }
+
+    private void SetControlledPlayerMovement(bool enabled)
+    {
+        if (_playerId >= 0)
+        {
+            PlayerMovement.SetMovementEnabledForPlayer(_playerId, enabled);
+        }
     }
 
     // Inspector-callable callbacks (kept empty so designers can hook events in the inspector)
