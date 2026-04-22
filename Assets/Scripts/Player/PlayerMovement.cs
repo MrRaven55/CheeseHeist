@@ -1,21 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    Rigidbody rb;
-    Animator anim;
+    private Rigidbody rb;
+    private Animator anim;
 
-    public KeyCode upButton;
-    public KeyCode downButton;
-    public KeyCode rightButton;
-    public KeyCode leftButton;
+    [Header("Input (per-player controls)")]
+    [SerializeField] private KeyCode upButton = KeyCode.W;
+    [SerializeField] private KeyCode downButton = KeyCode.S;
+    [SerializeField] private KeyCode rightButton = KeyCode.D;
+    [SerializeField] private KeyCode leftButton = KeyCode.A;
 
-
-    public int playerID;
-    public float speed = 10f;
-    
+    [Header("Movement / identity")]
+    [SerializeField] private int playerID = 1;
+    [SerializeField] private float speed = 10f;
+    private bool canmove = true;
+    public int PlayerID => playerID;
+    public float Speed
+    {
+        get => speed;
+        set => speed = Mathf.Max(0f, value);
+    }
 
     private void Awake()
     {
@@ -23,33 +29,27 @@ public class PlayerMovement : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         Movement();
     }
 
-    void Movement()
-    {   
-       
-            Vector3 move1 = Vector3.zero;
+    /// <summary>
+    /// Simple input-based movement using AddForce(Impulse).
+    /// </summary>
+    private void Movement()
+    {
+        if (canmove)
+        {
+            Vector3 move = Vector3.zero;
 
-            if (Input.GetKey(upButton))
-                move1.y += 1;
-            if (Input.GetKey(downButton))
-                move1.y -= 1;
-            if (Input.GetKey(rightButton))
-                move1.x += 1;
-            if (Input.GetKey(leftButton))
-                move1.x -= 1;
-            //Gets the player's movement direction
+            if (Input.GetKey(upButton)) move.y += 1;
+            if (Input.GetKey(downButton)) move.y -= 1;
+            if (Input.GetKey(rightButton)) move.x += 1;
+            if (Input.GetKey(leftButton)) move.x -= 1;
 
-            move1 = move1.normalized;
-
-            rb.AddForce(move1 * speed, ForceMode.Impulse);
-            //Normalizes the vector and adds force
-
-
-
+            move = move.normalized;
+            rb.AddForce(move * speed, ForceMode.Impulse);
+        }
     }
 }

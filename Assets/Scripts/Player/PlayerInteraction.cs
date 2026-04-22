@@ -1,52 +1,94 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
+using System;
+/// <summary>
+/// Handles player proximity-based interaction with IInteractable objects and
+/// triggers Minigame1 (sets up the minigame parameters before enabling it).
+/// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
-
-    PlayerMovement pM;
-    public KeyCode interact;
-
-    int playerID;
+    public static event Action<int> OnInteract;
+    private PlayerMovement playerMovement;
     private bool playerInRange;
     private IInteractable interactable;
 
+    [Header("References")]
+    [SerializeField] private KeyCode interactKey = KeyCode.E;
+    [SerializeField] private GameObject minigame1;  // minigame prefab or panel (set in inspector)
+    [SerializeField] private GameObject minigame2;
+    [SerializeField] private WoodInventory woodInventory;               // optional, auto-found if null
+    [SerializeField] private int currentPlayerID;
+
     private void Awake()
     {
-        pM = GetComponent<PlayerMovement>();
+        playerMovement = GetComponent<PlayerMovement>();
 
-        playerID = pM.playerID;
+        if (woodInventory == null)
+            woodInventory = FindObjectOfType<WoodInventory>();
     }
 
     private void Update()
     {
-        if (playerInRange)
+        if (playerInRange && Input.GetKeyDown(interactKey))
         {
-          
-                if ( Input.GetKeyDown(interact))
-                {
-                    interactable.Interact(gameObject);
+            if (interactable == null || minigame1 == null) return;
+
+            // Pass references into the minigame before starting it
+            Minigame1 mg = minigame1.GetComponent<Minigame1>();
+            if (mg != null)
+            {
+                if(currentPlayerID == playerMovement.PlayerID) 
+                { 
+                OnInteract?.Invoke(currentPlayerID);
+                Debug.Log("Current ID interacted is" + currentPlayerID);
                 }
-            
+                mg.PlayerRef = gameObject;
+                mg.WoodInventory = woodInventory;
+
+                // If interacting with an InteractableTree, pass the tree type for rewards
+                if (interactable is InteractableTree tree)
+                {
+                    mg.NormalHitWoodType = tree.TreeTypeName;
+                    mg.PerfectHitWoodType = tree.TreeTypeName + "Plank";
+                }
+            }
+
+            minigame1.SetActive(true);
         }
-        
-        //Checks if the player is in range of interactable object, and runs the interact script if the player presses the interact key.
     }
 
     private void OnTriggerEnter(Collider other)
     {
+
+        if (other.CompareTag("Player"))
+        {
+            PlayerMovement ID = other.GetComponent<PlayerMovement>();
+            if( ID != null)
+            {
+                currentPlayerID = ID.PlayerID;
+            }
+        }
+
         if (other.CompareTag("interactable"))
         {
-            interactable = other.GetComponent<IInteractable>();
-            playerInRange = true;
+            IInteractable i = other.GetComponent<IInteractable>();
+            if (i != null)
+            {
+                interactable = i;
+                playerInRange = true;
+            }
         }
-        //Checks if the nearby object is interactible, and gets the interactable component if it is.
     }
+
     private void OnTriggerExit(Collider other)
     {
-
-        playerInRange = false;
-
+        if (other.CompareTag("interactable"))
+        {
+            IInteractable i = other.GetComponent<IInteractable>();
+            if (i == interactable)
+            {
+                interactable = null;
+                playerInRange = false;
+            }
+        }
     }
 }

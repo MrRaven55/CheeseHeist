@@ -11,6 +11,8 @@ TagManager:
   - PinePlank
   - BirchPlank
   - OakPlank
+  - interactable
+  - Inventory
   layers:
   - Default
   - TransparentFX

@@ -1,32 +1,41 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
+/// <summary>
+/// Interactable tree that a player can chop. Uses an enum for type-safety
+/// but exposes a string name for compatibility with existing systems.
+/// </summary>
+public enum TreeType { Oak, Birch, Pine }
 
 public class InteractableTree : MonoBehaviour, IInteractable
 {
-    public string treeType;
-    WoodInventory woodInventory;
-    public void Interact(int playerID)
-    {
-        woodInventory.AddWood(treeType, playerID);
-    }
+    [Header("Tree Settings")]
+    [Tooltip("Type of tree: Oak, Birch, Pine")]
+    [SerializeField] private TreeType treeType = TreeType.Pine;
 
-    // Start is called before the first frame update
-    void Start()
+    // cached reference to inventory (found at Start)
+    private WoodInventory woodInventory;
+
+    /// <summary>
+    /// String version used by existing code (Minigame1 expects a string).
+    /// </summary>
+    public string TreeTypeName => treeType.ToString();
+
+    private void Start()
     {
+        // Attempt to locate the WoodInventory once
         woodInventory = FindObjectOfType<WoodInventory>();
+        if (woodInventory == null)
+            Debug.LogWarning("InteractableTree: WoodInventory not found in scene!", this);
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    /// Called by the interaction system. Uses the cached WoodInventory to add resources.
+    /// </summary>
+    public void Interact(GameObject player)
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            Interact(1);
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            Interact(2);
-        }
+        if (woodInventory == null || player == null) return;
+
+        Debug.Log($"Player {player.name} chopped {TreeTypeName} tree!", this);
+        woodInventory.AddWood(TreeTypeName, player);
     }
 }
