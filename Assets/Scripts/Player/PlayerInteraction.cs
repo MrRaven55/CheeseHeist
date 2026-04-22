@@ -1,11 +1,12 @@
 using UnityEngine;
-
+using System;
 /// <summary>
 /// Handles player proximity-based interaction with IInteractable objects and
 /// triggers Minigame1 (sets up the minigame parameters before enabling it).
 /// </summary>
 public class PlayerInteraction : MonoBehaviour
 {
+    public static event Action<int> OnInteract;
     private PlayerMovement playerMovement;
     private bool playerInRange;
     private IInteractable interactable;
@@ -15,6 +16,7 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private GameObject minigame1;  // minigame prefab or panel (set in inspector)
     [SerializeField] private GameObject minigame2;
     [SerializeField] private WoodInventory woodInventory;               // optional, auto-found if null
+    [SerializeField] private int currentPlayerID;
 
     private void Awake()
     {
@@ -34,6 +36,11 @@ public class PlayerInteraction : MonoBehaviour
             Minigame1 mg = minigame1.GetComponent<Minigame1>();
             if (mg != null)
             {
+                if(currentPlayerID == playerMovement.PlayerID) 
+                { 
+                OnInteract?.Invoke(currentPlayerID);
+                Debug.Log("Current ID interacted is" + currentPlayerID);
+                }
                 mg.PlayerRef = gameObject;
                 mg.WoodInventory = woodInventory;
 
@@ -51,6 +58,16 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+
+        if (other.CompareTag("Player"))
+        {
+            PlayerMovement ID = other.GetComponent<PlayerMovement>();
+            if( ID != null)
+            {
+                currentPlayerID = ID.PlayerID;
+            }
+        }
+
         if (other.CompareTag("interactable"))
         {
             IInteractable i = other.GetComponent<IInteractable>();
