@@ -71,6 +71,8 @@ public class PlayerInteraction : MonoBehaviour
 
             minigame1.SetActive(true);
         }
+        MinigameController();
+        DoorUnlock();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -106,6 +108,54 @@ public class PlayerInteraction : MonoBehaviour
                 interactable = null;
                 playerInRange = false;
             }
+        }
+    }
+
+    private void MinigameController()
+    {
+        if (playerInRange && Input.GetKeyDown(interactKey))
+        {
+            if (interactable == null || minigame1 == null) return;
+
+            // Pass references into the minigame before starting it
+            Minigame1 mg = minigame1.GetComponent<Minigame1>();
+            if (mg != null)
+            {
+                /* if (currentPlayerID == playerMovement.PlayerID)
+                {
+                    OnInteract?.Invoke(currentPlayerID);
+                    Debug.Log("Current ID interacted is" + currentPlayerID);
+                } */
+                mg.PlayerRef = gameObject;
+                mg.WoodInventory = woodInventory;
+
+                // If interacting with an InteractableTree, pass the tree type for rewards
+                if (interactable is InteractableTree tree)
+                {
+                    mg.NormalHitWoodType = tree.TreeTypeName;
+                    mg.PerfectHitWoodType = tree.TreeTypeName + "Plank";
+                    minigame1.SetActive(true);
+                }
+            }
+
+            
+        }
+    }
+
+    private void DoorUnlock()
+    {
+        if (playerInRange && Input.GetKeyDown(interactKey))
+        {
+            Debug.Log("Interacted");
+            if (interactable == null) return;
+
+            if(interactable is InteractableDoor door)
+            {
+                Debug.Log("Interacted with door");
+
+                door.Interact(gameObject);
+            }
+
         }
     }
 }

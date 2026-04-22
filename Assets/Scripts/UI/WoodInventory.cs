@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -43,6 +44,8 @@ public class WoodInventory : MonoBehaviour
 
     private LogMove activeLogMove;
 
+   
+
     /* ========== PUBLIC READ-ONLY PROPERTIES ========== */
     public int Oak => oak;
     public int Birch => birch;
@@ -58,6 +61,40 @@ public class WoodInventory : MonoBehaviour
     private void Update()
     {
         UpdateUI();
+    }
+    public enum WoodType
+    {
+        Oak,
+        Birch,
+        Pine,
+        OakPlank,
+        BirchPlank,
+        PinePlank
+    }
+
+    public void ChangeAmount(WoodType type, int amount)
+    {
+        switch (type)
+        {
+            case WoodType.Oak:
+                oak = Mathf.Max(0, oak + amount);
+                break;
+            case WoodType.Birch:
+                birch = Mathf.Max(0, birch + amount);
+                break;
+            case WoodType.Pine:
+                pine = Mathf.Max(0, pine + amount);
+                break;
+            case WoodType.OakPlank:
+                oakPlanks = Mathf.Max(0, oakPlanks + amount);
+                break;
+            case WoodType.BirchPlank:
+                birchPlanks = Mathf.Max(0, birchPlanks + amount);
+                break;
+            case WoodType.PinePlank:
+                pinePlanks = Mathf.Max(0, pinePlanks + amount);
+                break;
+        }
     }
 
     /// <summary>
