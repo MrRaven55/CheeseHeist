@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 3897532062001073977}
   m_Layer: 0
   m_Name: M_Birch_Tree (1)
-  m_TagString: Untagged
+  m_TagString: Highlight
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
