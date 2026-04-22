@@ -454,7 +454,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 5b759b63dfc6aca49ab0fc51849f891a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -633,6 +633,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5797136714757371517, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
       propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168604899887744038, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168604899887744038, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168604899887744038, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168604899887744038, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168604899887744038, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
+      propertyPath: m_DrawMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168604899887744038, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
+      propertyPath: m_MaskInteraction
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168604899887744038, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}
+      propertyPath: m_SpriteSortPoint
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9077601154882743350, guid: 1c9f50aebc173cf42ad3d0c4e734ef30, type: 3}

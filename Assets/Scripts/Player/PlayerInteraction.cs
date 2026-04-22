@@ -34,7 +34,6 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
         if (other.CompareTag("Player"))
         {
             PlayerMovement ID = other.GetComponent<PlayerMovement>();
