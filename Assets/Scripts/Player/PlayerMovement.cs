@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement / identity")]
     [SerializeField] private int playerID = 1;
     [SerializeField] private float speed = 10f;
-
+    private bool canmove = true;
     public int PlayerID => playerID;
     public float Speed
     {
@@ -39,14 +39,17 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private void Movement()
     {
-        Vector3 move = Vector3.zero;
+        if (canmove)
+        {
+            Vector3 move = Vector3.zero;
 
-        if (Input.GetKey(upButton)) move.y += 1;
-        if (Input.GetKey(downButton)) move.y -= 1;
-        if (Input.GetKey(rightButton)) move.x += 1;
-        if (Input.GetKey(leftButton)) move.x -= 1;
+            if (Input.GetKey(upButton)) move.y += 1;
+            if (Input.GetKey(downButton)) move.y -= 1;
+            if (Input.GetKey(rightButton)) move.x += 1;
+            if (Input.GetKey(leftButton)) move.x -= 1;
 
-        move = move.normalized;
-        rb.AddForce(move * speed, ForceMode.Impulse);
+            move = move.normalized;
+            rb.AddForce(move * speed, ForceMode.Impulse);
+        }
     }
 }

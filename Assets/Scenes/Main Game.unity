@@ -417,7 +417,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -639,6 +639,14 @@ PrefabInstance:
       propertyPath: minigame1
       value: 
       objectReference: {fileID: 1216843270}
+    - target: {fileID: 2741600593298486789, guid: 24f1dce48df30da43b82da4ceb63b0ca, type: 3}
+      propertyPath: interactKey
+      value: 305
+      objectReference: {fileID: 0}
+    - target: {fileID: 2741600593298486789, guid: 24f1dce48df30da43b82da4ceb63b0ca, type: 3}
+      propertyPath: currentPlayerID
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2855283458024704755, guid: 24f1dce48df30da43b82da4ceb63b0ca, type: 3}
       propertyPath: m_Name
       value: Player2
@@ -677,8 +685,8 @@ RectTransform:
   m_GameObject: {fileID: 231147686}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.60364586, y: 0.60364586, z: 0.60364586}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1524671563}
   - {fileID: 579447956}
@@ -690,7 +698,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 300, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &282227084
@@ -1325,7 +1333,7 @@ MonoBehaviour:
   _normalHitWoodType: Oak
   _perfectHitWoodType: OakPlank
   score: 0
-  chopKey: 32
+  chopKey: 101
   onPerfect:
     m_PersistentCalls:
       m_Calls: []
@@ -1545,7 +1553,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5763463198285930631, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: fallSpeed
@@ -1651,7 +1659,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -1994,7 +2002,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5763463198285930631, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: fallSpeed
@@ -2003,6 +2011,30 @@ PrefabInstance:
     - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
       propertyPath: laneCount
       value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: startLane
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: playerObject
+      value: 
+      objectReference: {fileID: 1158406591}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: spawnInterval
+      value: 0.84
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: woodInventory
+      value: 
+      objectReference: {fileID: 546114234}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: onWin.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8859891839453029870, guid: 8be518c12fe16da4ebb5c934c892f271, type: 3}
+      propertyPath: onWin.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2078,7 +2110,7 @@ MonoBehaviour:
   _normalHitWoodType: Oak
   _perfectHitWoodType: OakPlank
   score: 0
-  chopKey: 101
+  chopKey: 305
   onPerfect:
     m_PersistentCalls:
       m_Calls: []
@@ -2437,6 +2469,10 @@ PrefabInstance:
       propertyPath: minigame1
       value: 
       objectReference: {fileID: 648966569}
+    - target: {fileID: 2247161916730866273, guid: 556e6172739bb35468fe062d27b8eda8, type: 3}
+      propertyPath: currentPlayerID
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6062089389010452493, guid: 556e6172739bb35468fe062d27b8eda8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.3399553
@@ -2628,10 +2664,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
