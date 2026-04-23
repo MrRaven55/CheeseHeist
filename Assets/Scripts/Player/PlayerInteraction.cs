@@ -99,7 +99,7 @@ public class PlayerInteraction : MonoBehaviour
             IInteractable i = other.GetComponent<IInteractable>();
             if (i != null)
             {
-                if()
+               
                 interactable = i;
                 playerInRange = true;
             }
