@@ -61,6 +61,7 @@ public class WoodInventory : MonoBehaviour
     private void Update()
     {
         UpdateUI();
+        CheckForWin();
     }
     public enum WoodType
     {
@@ -273,5 +274,13 @@ public class WoodInventory : MonoBehaviour
         if (oakPlanksUI) oakPlanksUI.text = $"Oak Planks: {oakPlanks}";
         if (birchPlanksUI) birchPlanksUI.text = $"Birch Planks: {birchPlanks}";
         if (pinePlanksUI) pinePlanksUI.text = $"Pine Planks: {pinePlanks} | Total: {Planks} | Bridge: {bridgePieces}";
+    }
+
+    private void CheckForWin()
+    {
+        if(Planks >= 100 && Birch >= 10 && Oak >= 10)
+        {
+            //gamewin
+        }
     }
 }

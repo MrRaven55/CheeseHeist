@@ -95,6 +95,10 @@ public class PlayerInteraction : MonoBehaviour
                 playerInRange = true;
             }
         }
+        if (other.GetComponent<ISign>() != null)
+        {
+            other.GetComponent<ISign>().SignState(true);
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -108,6 +112,11 @@ public class PlayerInteraction : MonoBehaviour
                 playerInRange = false;
             }
         }
+        if (other.GetComponent<ISign>() != null)
+        {
+            other.GetComponent<ISign>().SignState(false);
+        }
+
     }
 
     private void MinigameController()

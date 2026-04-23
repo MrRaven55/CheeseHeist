@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractableDoor : MonoBehaviour, IInteractable
+public class InteractableDoor : MonoBehaviour, IInteractable, ISign
 {
     public WoodInventory wI;
     [Header("Raw Wood (costs)")]
@@ -15,6 +15,7 @@ public class InteractableDoor : MonoBehaviour, IInteractable
     [SerializeField] private int birchPlanksCost;
     [SerializeField] private int pinePlanksCost;
 
+    public GameObject UInote;
    
 
     public void Interact(GameObject player)
@@ -35,7 +36,10 @@ public class InteractableDoor : MonoBehaviour, IInteractable
 
 
             Destroy(gameObject);
-          }
+        }
     }
-
+    public void SignState(bool state)
+    {
+        UInote.SetActive(state);
+    }
 }
