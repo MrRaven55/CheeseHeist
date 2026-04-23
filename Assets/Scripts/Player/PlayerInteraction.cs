@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using UnityEditor;
 /// <summary>
 /// Handles player proximity-based interaction with IInteractable objects and
 /// triggers Minigame1 (sets up the minigame parameters before enabling it).
@@ -10,6 +11,8 @@ public class PlayerInteraction : MonoBehaviour
     private PlayerMovement playerMovement;
     private bool playerInRange;
     private IInteractable interactable;
+
+    
 
     [Header("References")]
     [SerializeField] private KeyCode interactKey = KeyCode.E;
@@ -77,6 +80,8 @@ public class PlayerInteraction : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+     
+
         if (other.CompareTag("Player"))
         {
             PlayerMovement ID = other.GetComponent<PlayerMovement>();
@@ -88,9 +93,13 @@ public class PlayerInteraction : MonoBehaviour
 
         if (other.CompareTag("interactable"))
         {
+
+            
+
             IInteractable i = other.GetComponent<IInteractable>();
             if (i != null)
             {
+                if()
                 interactable = i;
                 playerInRange = true;
             }
