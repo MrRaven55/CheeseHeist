@@ -18,6 +18,8 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private WoodInventory woodInventory;               // optional, auto-found if null
     [SerializeField] private int currentPlayerID;
 
+    public GameObject Minigame2Object => minigame2;
+
     private void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
@@ -28,6 +30,47 @@ public class PlayerInteraction : MonoBehaviour
 
     private void Update()
     {
+        if (playerInRange && Input.GetKeyDown(interactKey))
+        {
+            if (interactable == null) return;
+
+            // Minigame triggers use the same IInteractable flow as trees.
+            if (interactable is Minigame2Trigger || interactable is Minigame3Trigger)
+            {
+                interactable.Interact(gameObject);
+                return;
+            }
+
+            if (minigame1 == null) return;
+
+            // Pass references into the minigame before starting it
+            Minigame1 mg = minigame1.GetComponent<Minigame1>();
+            if (mg != null)
+            {
+                if(currentPlayerID == playerMovement.PlayerID) 
+                { 
+                OnInteract?.Invoke(currentPlayerID);
+                Debug.Log("Current ID interacted is" + currentPlayerID);
+                }
+                mg.PlayerId = playerMovement.PlayerID;
+                mg.PlayerRef = gameObject;
+                mg.WoodInventory = woodInventory;
+
+                // If interacting with an InteractableTree, pass the tree type for rewards
+                if (interactable is InteractableTree tree)
+                {
+                    mg.NormalHitWoodType = tree.TreeTypeName;
+                    mg.PerfectHitWoodType = tree.TreeTypeName + "Plank";
+                }
+            }
+
+            if (playerMovement != null)
+            {
+                PlayerMovement.SetMovementEnabledForPlayer(playerMovement.PlayerID, false);
+            }
+
+            minigame1.SetActive(true);
+        }
         MinigameController();
         DoorUnlock();
     }
